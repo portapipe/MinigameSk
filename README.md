@@ -1,0 +1,4 @@
+MinigameSk
+==========
+
+Minigames Core
