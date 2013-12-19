@@ -1,0 +1,33 @@
+#This requires the add-on skript+
+#when a player executes the join command to join the minigame you will need to show the scoreboard to him.
+#your code would look somthing like this
+on command "/join" #command there or you could have it in the command its self instead of using the on command event
+ display board named "(name)" to player #this here is what appears at the top of the scoreboard
+ make score "(name)" in board of player to (number) #these here will be what you would like to display in the scoreboard and the number.
+ move display of player to "sidebar" #this here is where you would like to display the scoreboard i would recommend using the sidebar
+ 
+#to make a point/team system where a player kills another player on the opposite then it adds 1 to the attackers team scoreboard you would do somthing like this
+on death of player:
+ if {team.%player%} is green
+  loop all players: # you need to loop all the players because the scoreboards are client side
+   add 1 to {red.kills}
+   make score "red:" in board of loop-player to {red.kills}
+ if {team.%player%} is red
+  loop all players:
+   add 1 to {green.kills}
+   make score "green:" in board of loop-player to {green.kills}
+#then if you wanted to make the game end once a team reaches a limit and annouce who wins you would do somthing like this
+on death of player:
+ wait 1 tick #you dont have to do this but i would recommend having it here
+ if {red.kills} is (limit):
+  loop all players:
+   if {team.%loop-player%} is green or red:
+    message "&3[&4Minigame&3] Team red have won!" to loop-player
+    make loop-player execute command "/spawn"
+ if {green.kills} is (limit):
+  loop all players:
+   if {team.%loop-player%} is green or red:
+    message "&3[&4Minigame&3] Team green have won!" to loop-player
+    make loop-player execute command "/spawn"
+ #this is only some scoreboard stuff and not a fully working skript i will add some more stuff to this later on
+ #- bcroca
