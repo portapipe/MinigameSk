@@ -5,7 +5,7 @@
 
 # Variables:
 # - mg.arena.name::arenaName
-# - mg.arena.flag.arenaName::minPlayers|maxPlayers|score|scoreType|team(true-false)|type(addon!)|lobby|spawn(team or single)|quit|timer|lateJoin|enabled|lives|
+# - mg.arena.flag.arenaName::minPlayers|maxPlayers|score|scoreType|team(true-false)|type(addon!)|lobby|spawn(team or single)|quit|timer|lateJoin|enabled|lives|pvp(true or false)|
 
 # other possible flags: blockPlace,blockBreak,gamemode,lobby,checkpoint,reset,startTime(waiting type),reward
 
