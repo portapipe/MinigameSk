@@ -3,23 +3,57 @@
 # Made by community: (your name will be here when you'll add your commits)
 # bcroca |
 
+# Variables:
+# - mg.arena.name::arenaName
+# - mg.arena.flag.arenaName::minPlayers|maxPlayers|score|scoreType|team(true-false)|type(addon!)|lobby|spawn(team or single)|quit|timer|lateJoin|enabled|lives|
+
+# other possible flags: blockPlace,blockBreak,gamemode,lobby,checkpoint,reset,startTime(waiting type),reward
+
+# I don't know about: defaultWinner,blockDrop,itemPickup,itemDrop,restoreBlocks,unlimitedAmmo,
+
+# Spectator? With Sk+ we can hide spectator from players...
+
 options:
 	tag : <blue>[<yellow>Minigame<blue>] <reset>
+	separator: "<blue>####################<reset>"
 	version : "V.01"
 
-command /minigame [<text>] [<text>]:
-	usage: mg join/quit/list arena
+command /minigame [<text>] [<text>] [<text>] [<text>]:
+	usage: <green>mg join/quit/list arena <reset>- <red>staff: mg create/delete/flag arena flagType flagValue
 	aliases: mg,mgm
 	permission: mg.active
 	trigger:
 
 		if arg 1 is not set:
+			message "{@separator}"
 			message "{@tag}Minigame Plugin {@version}, made by the community"
+			message "<orange>list: <yellow>List of available minigames"
+			message "<orange>join <purple><minigame>: <yellow>Join to a specific minigame"
+			
+		if arg 1 is "list":
+			message "{@separator}"
+			message "{@tag}List of available minigames:"
+			message "<yellow>{mg.arena.name::*}"
 
+
+
+#-------STAFF COMMANDS---------
 		
-		
-		
-		
+		if arg 1 is "create","delete" or "flag":
+			arg 2 is set
+			message "{@separator}"
+			message "{@tag}STAFF Commands"
+			
+			if arg 1 is "create":
+				set {mg.arena.name::%arg 1%} to arg 1
+				message "{@tag}<green>Minigame %arg 1% created succesfully! Creating default flags..."
+				# Default flags for the new minigame (using string because it's a text argument)
+				set {mg.arena.flag.%arg 1%::enabled} to "FALSE"
+				set {mg.arena.flag.%arg 1%::minPlayers} to "2"
+				set {mg.arena.flag.%arg 1%::score} to "2"
+				# We'll parse the numbers above when we'll use it!
+
+
 command /sb <text> <text> [<offline player>] [<integer>]:
 	usage: sb <add/remove/set/create/delete> <scoreboard> [player] [points]
 	permission: mg.scoreboard
