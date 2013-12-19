@@ -6,10 +6,24 @@ options:
 	tag : <blue>[<yellow>Minigame<blue>] <reset>
 	version : "V.01"
 
-command /minigame [<text>]:
+command /minigame [<text>] [<text>]:
+	usage: mg join/quit/list arena
 	aliases: mg,mgm
 	permission: mg.active
 	trigger:
-    
+
 		if arg 1 is not set:
 			message "{@tag}Minigame Plugin {@version}, made by the community"
+
+		
+		
+		
+		
+command /sb <text> <text> [<offline player>] [<integer>]:
+	usage: sb <add/remove/set/create/delete> <scoreboard> [player] [points]
+	permission: mg.scoreboard
+	trigger:
+		
+		if arg 1 is "create" or "delete":
+			message "{@tag}Create or delete a scoreboard"
+#			Need to decide if use the multiple scoreboard
