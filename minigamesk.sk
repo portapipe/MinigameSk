@@ -1,0 +1,15 @@
+# MinigameSk
+# Started By portapipe
+# Made by community (your name will be here when you'll add your commits)
+
+options:
+	tag : <blue>[<yellow>Minigame<blue>] <reset>
+	version : "V.01"
+
+command /minigame [<text>]:
+	aliases: mg,mgm
+	permission: mg.active
+	trigger:
+    
+		if arg 1 is not set:
+			message "{@tag}Minigame Plugin {@version}, made by the community"
