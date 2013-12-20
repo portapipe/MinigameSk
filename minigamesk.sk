@@ -5,6 +5,9 @@
 
 # Variables:
 # - mg.arena.name::arenaName
+### The current variable is made for the current game
+# - mg.current.arenaName::players
+### Flags are the settings of each arena, all under 1 simple list of a variable
 # - mg.arena.flag.arenaName::minPlayers|maxPlayers|score|scoreType|team(true-false)|type(addon!)|lobby|spawn(team or single)|quit|timer|lateJoin|enabled|lives|pvp(true or false)|
 
 # other possible flags: blockPlace,blockBreak,gamemode,lobby,checkpoint,reset,startTime(waiting type),reward
@@ -62,32 +65,51 @@ command /sb <text> <text> [<offline player>] [<integer>]:
 		if arg 1 is "create" or "delete":
 			message "{@tag}Create or delete a scoreboard"
 #			Need to decide if use the multiple scoreboard
+
+
+#I think this should be replace by an inline code when we need it :)
+command /playerexecute <player> <text>:
+	aliases: pe
+	executable by: console
+	trigger:
+		execute argument 1 command "%argument 2%"
+
+
+
+#----------- EVENTS ----------
+#
 on right click on sign:
- if line 1 is "&4[Join]":
-  if line 2 is "&5[Minigame]":
-   add 1 to {total.players}
-   add player to {mg.arena.flag.arenaName::Players}
-   set line 3 of the block to "Players: %{total.players}%/30"
-   teleport player to {minigame.lobby}
-   message "{@tag}You have been teleported to the lobby."
+	line 1 of block is "&4[Minigame]"
+	if line 2 of block is "&5[Join]":
+		add player to {mg.current.%line 3 of block%::players}
+		add 1 to {mg.current.%line 3 of block%::totPlayers}
+	
+		#Write number of current player to the sign
+		#Check if maxPlayers flag is set, else there's no limit to the number of players
+		set {_maxPlayers} to ""
+		if {mg.arena.flag.%line 3 of block%::maxPlayers} is set:
+			set {_maxPlayers} to "/%{mg.arena.flag.%line 3 of block%::maxPlayers}%"
+	
+		set line 4 of the block to "Players: %{mg.current.%line 3 of block%::totPlayers}%%{_maxPlayers}%"
+	
+		teleport player to {mg.arena.flag.%line 3 of block%::lobby}
+		message "{@tag}You have been teleported to the lobby of: %line 3 of block%."
+		stop
 
 on sign change:
- if line 1 is "&4[Join]":
-  if line 2 is "&5[Minigame]":
-   if {total.players} isn't set:
-    set {total.players} to 0
-    set line 3 of the block to "Players: %{total.players}%/30"
-    set line 4 of the block to "&aWaiting"
-   else:
-    set line 3 of the block to "Players: %{total.players}%/30"
-    set line 4 of the block to "&aWaiting"   
-   
-on right click with stick:
- show "s;1;i;wool;n;&3Play Minigame;l;&2Click on this item to join the minigame.;c;pe %player% /join game" with 1 rows named "&3Minigames" to player
- 
-command /playerexecute <player> <text>:
- aliases: pe
- executable by: console
- trigger:
-  execute argument 1 command "%argument 2%"
- #thats all from me for now i will make the join commandlater on. - bcroca
+	line 1 of block is "&4[Minigame]"
+	if player don't have permission "mg.staff":
+		message "{@tag}&4You don't have the required permission to create minigames sign!"
+		stop
+	if line 2 of block is "&5[Join]":
+		if line 3 of block is "":
+			cancel event
+			message "{@tag}&4You have to insert an existing minigame arena name in the third line!"
+			stop
+			
+		set {mg.current.%line 3 of block%::totPlayers} to 0
+		set line 4 of the block to "Players: %{total.players}%"
+
+#can't figure out what this does  
+#on right click with stick:
+#	show "s;1;i;wool;n;&3Play Minigame;l;&2Click on this item to join the minigame.;c;pe %player% /join game" with 1 rows named "&3Minigames" to player
