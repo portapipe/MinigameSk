@@ -64,6 +64,7 @@ command /minigame [<text>] [<text>] [<text>] [<text>]:
 					message "{@tag}<red>L'arena selezionata non esiste!"
 					stop
 				delete {mg.arena.name::%arg 1%}
+				delete {mg.arena.flag.%arg 1%::*}
 				#Dovremmo teleportare eventuali player nell'arena selezionata
 
 
