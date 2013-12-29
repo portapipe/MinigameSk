@@ -36,7 +36,7 @@ command /minigame [<text>] [<text>] [<text>] [<text>]:
 		if arg 1 is "list":
 			message "{@separator}"
 			message "{@tag}List of available minigames:"
-			message "<yellow>{mg.arena.name::*}"
+			message "<yellow>%{mg.arena.name::*}%"
 
 
 
