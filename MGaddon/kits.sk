@@ -9,4 +9,4 @@ options:
 on click on sign:
 	line 1 of clicked block is "[Kit]"
 	clear inventory of player
-	add inventory of block under clicked sign to player's inventory
+	add inventory of block under clicked block to player's inventory
