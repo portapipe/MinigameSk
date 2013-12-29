@@ -48,6 +48,9 @@ command /minigame [<text>] [<text>] [<text>] [<text>]:
 			message "{@tag}STAFF Commands"
 			
 			if arg 1 is "create":
+				if {mg.arena.name::%arg 1%} is set:
+					message "{@tag}<red>Il nome dell'arena è già utilizzato!"
+					stop
 				set {mg.arena.name::%arg 1%} to arg 1
 				message "{@tag}<green>Minigame %arg 1% created succesfully! Creating default flags..."
 				# Default flags for the new minigame (using string because it's a text argument)
@@ -55,6 +58,13 @@ command /minigame [<text>] [<text>] [<text>] [<text>]:
 				set {mg.arena.flag.%arg 1%::minPlayers} to "2"
 				set {mg.arena.flag.%arg 1%::score} to "2"
 				# We'll parse the numbers above when we'll use it!
+		
+			if arg 1 is "delete":
+				if {mg.arena.name::%arg 1%} is not set:
+					message "{@tag}<red>L'arena selezionata non esiste!"
+					stop
+				delete {mg.arena.name::%arg 1%}
+				#Dovremmo teleportare eventuali player nell'arena selezionata
 
 
 command /sb <text> <text> [<offline player>] [<integer>]:
