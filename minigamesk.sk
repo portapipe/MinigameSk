@@ -121,6 +121,22 @@ on sign change:
 		set {mg.current.%line 3 of block%::totPlayers} to 0
 		set line 4 of the block to "Players: %{total.players}%"
 
-#can't figure out what this does  
+
 #on right click with stick:
-#	show "s;1;i;wool;n;&3Play Minigame;l;&2Click on this item to join the minigame.;c;pe %player% /join game" with 1 rows named "&3Minigames" to player
+	set {_i} to 1
+	set {_items} to ""
+	loop {mg.arena.name::*}:
+		{mg.arena.flag.%loop-index%::enabled} is "TRUE"
+		set {_items} to "s;%{_i}%;i;wool;n;&3Play %loop-index%;l;&2Click to join %loop-index%.;c;sudo %player% /join %loop-index%;%{_items}%"
+		add 1 to {_1}
+	if {_i} is less than 10:
+		set {_rows} to 1
+	else:
+		if {_i} is between 10 and 18:
+			set {_rows} to 2
+		else:
+			if {_i} is between 19 and 27:
+				set {_rows} to 3
+			else
+				set {_rows} to 4
+	show "%{_items}%" with {_rows} rows named "&3Minigames" to player
