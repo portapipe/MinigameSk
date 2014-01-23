@@ -14,7 +14,7 @@
 
 # I don't know about: defaultWinner,blockDrop,itemPickup,itemDrop,restoreBlocks,unlimitedAmmo,
 
-# Spectator? With Sk+ we can hide spectator from players...
+# Spectator? With Sk+ we can hide spectator from players and give them fly, nodrop, nohit, notarget...
 
 options:
 	tag : <blue>[<yellow>Minigame<blue>] <reset>
@@ -37,7 +37,25 @@ command /minigame [<text>] [<text>] [<text>] [<text>]:
 			message "{@separator}"
 			message "{@tag}List of available minigames:"
 			message "<yellow>%{mg.arena.name::*}%"
+			
+		if arg 1 is "join":
+			message "{@separator}"
+			message "{@tag}This will be the join command"
 
+
+#ALIASES
+command /join <text>:
+	trigger:
+		make player execute console command "mg join %arg 1%"
+		
+command /quit <player>:
+	aliases: esc,exit,leave
+	trigger:
+		if arg 1 is not set:
+			make player execute console command "mg quit"
+		else:
+			
+#END ALIASES
 
 
 #-------STAFF COMMANDS---------
@@ -78,9 +96,9 @@ command /sb <text> <text> [<offline player>] [<integer>]:
 #			Need to decide if use the multiple scoreboard
 
 
-#I think this should be replace by an inline code when we need it :)
+#SUDO command
 command /playerexecute <player> <text>:
-	aliases: pe
+	aliases: pe, sudo
 	executable by: console
 	trigger:
 		execute argument 1 command "%argument 2%"
@@ -122,13 +140,17 @@ on sign change:
 		set line 4 of the block to "Players: %{total.players}%"
 
 
-#on right click with stick:
+
+#MENU SYSTEM
+on right click with stick:
 	set {_i} to 1
 	set {_items} to ""
 	loop {mg.arena.name::*}:
 		{mg.arena.flag.%loop-index%::enabled} is "TRUE"
-		set {_items} to "s;%{_i}%;i;wool;n;&3Play %loop-index%;l;&2Click to join %loop-index%.;c;sudo %player% /join %loop-index%;%{_items}%"
+		set {_items} to "s;%{_i}%;i;wool;n;&3Play %loop-index%;l;&2Click to join %loop-index%.;c;pe %player% /join %loop-index%;%{_items}%"
 		add 1 to {_1}
+	#We add 1 to the number for the exit slot
+	add 1 to {_i}
 	if {_i} is less than 10:
 		set {_rows} to 1
 	else:
@@ -137,6 +159,7 @@ on sign change:
 		else:
 			if {_i} is between 19 and 27:
 				set {_rows} to 3
-			else
+			else:
 				set {_rows} to 4
+	set {_items} to "s;%%{_rows}%*9%;i;red wool;n;&4&lEXIT;%{_items}%"
 	show "%{_items}%" with {_rows} rows named "&3Minigames" to player
