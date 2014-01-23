@@ -40,22 +40,15 @@ command /minigame [<text>] [<text>] [<text>] [<text>]:
 			
 		if arg 1 is "join":
 			message "{@separator}"
-			message "{@tag}This will be the join command"
-
-
-#ALIASES
-command /join <text>:
-	trigger:
-		make player execute console command "mg join %arg 1%"
+			message "{@tag}This will be the join command, joining minigame %arg 2%"
 		
-command /quit <player>:
-	aliases: esc,exit,leave
-	trigger:
-		if arg 1 is not set:
-			make player execute console command "mg quit"
-		else:
-			
-#END ALIASES
+		if arg 1 is "quit":
+			message "{@separator}"
+			message "{@tag}This will be the quit command"
+			if arg 2 is set:
+				message "The player %arg 2% will quit from his current minigame"
+
+
 
 
 #-------STAFF COMMANDS---------
@@ -86,6 +79,25 @@ command /quit <player>:
 				#Dovremmo teleportare eventuali player nell'arena selezionata
 
 
+
+
+#ALIASES
+command /join <text>:
+	trigger:
+		make player execute console command "mg join %arg 1%"
+		
+command /quit <player>:
+	aliases: esc,exit,leave
+	trigger:
+		if arg 1 is not set:
+			make player execute console command "mg quit"
+		else:
+			execute console command "mg quit %arg 1%"
+#END ALIASES
+
+
+
+#SCOREBOARD
 command /sb <text> <text> [<offline player>] [<integer>]:
 	usage: sb <add/remove/set/create/delete> <scoreboard> [player] [points]
 	permission: mg.scoreboard
@@ -93,7 +105,12 @@ command /sb <text> <text> [<offline player>] [<integer>]:
 		
 		if arg 1 is "create" or "delete":
 			message "{@tag}Create or delete a scoreboard"
-#			Need to decide if use the multiple scoreboard
+			
+			
+		if arg 1 is "add","remove" or "set":
+			message "{@tag}%arg 1% points to player %arg 3% to scoreboard %arg 2%"
+#END SCOREBOARD
+
 
 
 #SUDO command
