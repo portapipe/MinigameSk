@@ -1,0 +1,56 @@
+#Arena Subroutines. Requires Sk+. First Release, Untested since i am lazy but it should work//Mirreducki.
+
+#Simple Arena Randomizer. 
+#{Chosen.Arena} holds the highest voted arena.
+#Usage: invoke "Random Arena"				
+sub "Random Arena":
+	loop {mg.arena.name::*}:
+		if {mg.arena.flag.%loop-value%::enabled} is "TRUE": #Checks if the arena is enabled. Other checks can be added here.
+			add loop-value to {_random::*}
+	set {_random} to random element out of {_random::*}
+	set {Chosen.Arena} to {_random}
+	
+
+	
+	
+	
+#Votes Arena Calculator. Thanks to cam13619 for the original. Edited by Mirreducki.
+#Gets the Highest voted Arena.
+#{Votes::*} should hold the votes of every arena like this:
+#{Votes::ExampleArena} = Number of Votes.
+#{Chosen.Arena} holds the highest voted arena.
+
+#Usage: invoke "Vote Calc"
+sub "Vote Calc":
+	if {Votes::*} is not set:										
+		stop
+	loop {Votes::*}:
+		set {_topvote} to loop-value
+		set {_vote.topmaps::%loop-index%} to loop-index
+		exit loop
+	loop {Votes::*}:
+		{_vote.topmaps::%loop-index%} is not set 
+		if {_topvote} is equal to loop-value:
+			set {_vote.topmaps::%loop-index%} to loop-index
+		if {_topvote} is less than loop-value:
+			clear {_vote.topmaps::*}
+			set {_topvote} to loop-value
+			set {_vote.topmaps::%loop-index%} to loop-index
+	loop {_vote.topmaps::*}:
+		set {_topmapcount} to {_topmapcount}+1
+	set {_selectedmap} to random integer between 1 and {_topmapcount}
+	loop {_vote.topmaps::*}:
+		set {_viewed map} to {_viewed map}+1
+		{_viewed map} is equal to {_selectedmap}
+		set {_selectedmap} to loop-index
+		exit loop
+	set {Chosen.Arena} to {_selectedmap}
+	
+	
+#Example Use:
+#Command /start game:
+#	trigger:
+#		invoke "Random Arena" #Now the variable {Chosen.Arena} holds the random arena.
+#		teleport all players to {mg.arena.flag.%{Chosen.Arena}%::spawn} #Teleports all players to the chosen arenas spawn.
+#Notes: I am not sure if the flag "spawn" holds the location of the arena spawn or not.
+#Notes: You can replace the Invoke "Random Arena" with the Invoke "Vote Calc".
