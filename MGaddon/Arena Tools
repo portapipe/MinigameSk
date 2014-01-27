@@ -1,6 +1,8 @@
 #Arena Subroutines. Requires Sk+. First Release, Untested since i am lazy but it should work//Mirreducki.
 #If you see anything wrong you can change it. Like at my Example..
 
+#Need to add the mg. before the variable's name
+
 #Simple Arena Randomizer. 
 #{Chosen.Arena} holds the highest voted arena.
 #Usage: invoke "Random Arena"				
