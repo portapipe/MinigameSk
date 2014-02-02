@@ -59,29 +59,29 @@ command /minigame [<text>] [<text>] [<text>] [<text>]:
 			message "{@tag}STAFF Commands"
 			
 			if arg 1 is "create":
-				if {mg.arena.name::%arg 1%} is set:
+				if {mg.arena.name::%arg 2%} is set:
 					message "{@tag}<red>Il nome dell'arena è già utilizzato!"
 					stop
-				set {mg.arena.name::%arg 1%} to arg 1
-				message "{@tag}<green>Minigame %arg 1% created succesfully! Creating default flags..."
+				set {mg.arena.name::%arg 2%} to arg 2
+				message "{@tag}<green>Minigame %arg 2% created succesfully! Creating default flags..."
 				# Default flags for the new minigame (using string because it's a text argument)
-				set {mg.arena.flag.%arg 1%::enabled} to "FALSE"
-				set {mg.arena.flag.%arg 1%::minPlayers} to "2"
-				set {mg.arena.flag.%arg 1%::score} to "2"
+				set {mg.arena.flag.%arg 2%::enabled} to "FALSE"
+				set {mg.arena.flag.%arg 2%::minPlayers} to "2"
+				set {mg.arena.flag.%arg 2%::score} to "2"
 				# We'll parse the numbers above when we'll use it!
 		
 			if arg 1 is "delete":
-				if {mg.arena.name::%arg 1%} is not set:
+				if {mg.arena.name::%arg 2%} is not set:
 					message "{@tag}<red>L'arena selezionata non esiste!"
 					stop
-				delete {mg.arena.name::%arg 1%}
-				delete {mg.arena.flag.%arg 1%::*}
+				delete {mg.arena.name::%arg 2%}
+				delete {mg.arena.flag.%arg 2%::*}
 				#Dovremmo teleportare eventuali player nell'arena selezionata
 
 
 
 
-#ALIASES
+#ALIASES FOR DEDICATED OR MG BASED SERVER
 command /join <text>:
 	trigger:
 		make player execute console command "mg join %arg 1%"
