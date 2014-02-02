@@ -1,0 +1,116 @@
+# ################################################################################## #
+# ############################## Paintball Gametype ################################ #
+# ################################################################################## #
+options:
+#Gametypes	
+	paintball.gametype: arena	#paintball is a TDM game where you shoot with instant-kill snowballs
+	paintball.prefix: <magic>aaa<green>Paintball<reset><magic>aaa<reset> 
+	paintball.startcondition::spawns: 0
+	paintball.equipment: snowball
+  
+on skript load:
+  set {Arena.paintball.gametype} to {@paintball.gametype}
+  set {Arena.paintball.startcondition::*} to {@paintball.startcondition::*}
+
+on leftclick with snowball:
+	if {Arena.paintball.%player%.game} is true:
+		cancel event
+		shoot snowball at speed 1
+on rightclick with snowball:
+	if {Arena.paintball.%player%.game} is true:
+		cancel event
+		apply potion of jump boost 2 to the player for 3 seconds
+	
+on 	damage:
+  if {Arena.%victim%.game} is set :
+		if  {Arena.%victim%.game} is "paintball":
+			if projectile is an snowball:
+				if {@realdeath} is true:
+					kill victim
+					set {Arena.%victim%.respawn} to now
+					stop
+				if {@realdeath} is false:
+					set damage to 0
+					heal the victim
+					set {Arena.%victim%.respawn} to now
+					stop
+					execute console command "/Arenacommand respawn %victim%"
+				execute console command "/Arenacommand score %attacker%"
+
+on sign change:
+	if line 1 of event-block is "[paintball]":
+		if player does not have permission {@command.signs}:
+			message "I am afraid I can't let you do that"
+			stop				
+on rightclick on sign:
+	if line 1 of event-block is "[paintball]":
+		if line 2 of event-block is "join":
+			make player execute command "/paintball %line 3 of event-block%"
+			stop
+		make player execute command "/paintball %line 2 of event-block%"
+on break:
+	if {Arena.%player%.game} is "paintball":
+		cancel event	
+		
+command /paintball <text>:
+	description: join a game of paintball
+	usage: /paintball join %arenaname%
+	permission:	Arena.use
+	trigger:
+		if argument 1 is "votestart":
+			make player execute command "/Arena votestart bla {@paintball.prefix}"
+			stop
+		if argument 1 is "leave":
+			make player execute command "/Arena leave bla {@paintball.prefix}"
+			stop
+		make player execute command "/Arena paintball %argument 1% {@paintball.prefix}"
+# ################################################################################## #
+# ################################################################################## #
+# ################################################################################## #
+
+
+
+# ################################################################################## #
+# ################################# Rush Gametype ################################## #
+# ################################################################################## #
+options:
+#Gametypes	
+	Rush.gametype: arena	#Rush is a game where you build yourself to the enemy island and destroy their bed
+	Rush.prefix: <magic>aaa<green>Rush<reset><magic>aaa<reset> 
+	Rush.startcondition::teamlobby: 0
+	Rush.equipment: air
+on skript load:
+  set {Arena.Rush.gametype} to {@Rush.gametype}
+  set {Arena.Rush.startcondition::*} to {@Rush.startcondition::*}
+on place:
+	if {Arena.%player%.game} is "Rush":
+		add location of block to {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%::rollback::*}
+		set {Arena.blocktype.%location of block%} to air
+on break:
+	if {Arena.%player%.game} is "Rush":
+		add location of block to {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%::rollback::*}
+		set {Arena.blocktype.%location of block%} to event-block	
+on sign change:
+	if line 1 of event-block is "[Rush]":
+		if player does not have permission {@command.signs}:
+			message "I am afraid I can't let you do that"
+			stop
+			
+on rightclick on sign:
+	if line 1 of event-block is "[Rush]":
+		if line 2 of event-block is "join":
+			make player execute command "/Rush %line 3 of event-block%"
+			stop
+		make player execute command "/Rush %line 2 of event-block%"
+command /Rush <text>:
+	description: join a game of Rush
+	usage: /Rush join %arenaname%
+	permission:	Arena.use
+	trigger:
+		if argument 1 is "votestart":
+			make player execute command "/Arena votestart bla {@Rush.prefix}"
+			stop
+		if argument 1 is "leave":
+			make player execute command "/Arena leave bla {@Rush.prefix}"
+			stop
+		make player execute command "/Arena Rush %argument 1% {@Rush.prefix}"
