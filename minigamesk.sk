@@ -14,7 +14,7 @@
 
 # I don't know about: defaultWinner,blockDrop,itemPickup,itemDrop,restoreBlocks,unlimitedAmmo,
 
-# Spectator? With Sk+ we can hide spectator from players and give them fly, nodrop, nohit, notarget...
+# Spectator? With "Plus" we can hide spectator from players and give them fly, nodrop, nohit, notarget...
 
 options:
 	tag : <blue>[<yellow>Minigame<blue>] <reset>
