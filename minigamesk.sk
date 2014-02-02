@@ -183,10 +183,246 @@ command /Arena <text> [<text>] [<text>]:
 			message "%{_prefix}% {@Joining}"
 
 
+#Arenacommand for using easier structure without security expense
+
+command /Arenacommand <text> [<text>] [<text>] [<timespan>]:
+	description: only useable by console
+	usage: Not your concern
+	executable by: console
+	trigger:
+		if argument 1 is "rollback":
+			set {_player} to argument 2 parsed as player
+			loop {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::rollback::*}:
+				set block at location of loop-value to {Arena.blocktype.%loop-value%}
+		if argument 1 is "quit":
+			set {_player} to argument 2 parsed as player
+			set {Arena%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::players::%{_player}%} to 0
+			remove 1 from {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::players}
+			teleport {_player} to {Arena.%{_player}%.location}
+			clear {Arena.%{_player}%.lobby}
+			clear {Arena.%{_player}%.game}
+		if argument 1 is "score":
+			set {_player} to argument 2 parsed as player
+			add 1 to {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%.players::%{_player}%}
+			add 1 to {Arena.%{_player}%.%{Arena.%{_player}%.game}%}
+			if {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::winkills} is not set:
+				set {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::winkills} to {@winkills}
+			add 1 to {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::teams::%{Arena.%{_player}%.team}%}
+			if  {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::teams::%{Arena.%{_player}%.team}%} is {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::winkills}:
+				broadcast "%{_prefix}% %{Arena.%{_player}%.team}%& Team%{Arena.%{_player}%.team}% has won the game in the %argument 1% Arena %argument 2%"
+				loop {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%.players::*}:
+					execute console command "/Arenacommand quit %loop-index%"
+				stop
+		if argument 1 is "winscore":
+			broadcast "%{_prefix}% %{Arena.%{_player}%.team}%& Team%{Arena.%{_player}%.team}% has won the game in the %argument 1% Arena %argument 2%"
+			loop {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%.players::*}:
+				execute console command "/Arenacommand quit %loop-index%"
+				add 1 to {Arena.%{_player}%.%{Arena.%{_player}%.game}%}
+			
+			execute console command "/Arenacommand updatescore %{Arena.%{_player}%.game}% %{Arena.%{_player}%.lobby}%"
+		if argument 1 is "respawn":
+			set {_player} to argument 2 parsed as player
+			teleport {_player} to {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::spawn}
+			if {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::respawn} is not set:
+				set {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::respawn} to {@respawn}
+			if argument 4 is not set:
+				loop numbers between {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::respawn} and 0:
+					message "%loop-value"
+					wait 1 second
+			if argument 4 is set:
+				wait argument 4
+			execute console command "/Arenacommand spawn %{_player}%"
+			stop
+		if argument 1 is "spawn":
+			set {_player} to argument 2 parsed as player
+			if {_player} doesn't have 1 {@%{Arena.%{_player}%.game}%.equipment}
+				give {_player} 1 {@%{Arena.%{_player}%.game}%.equipment}
+			if {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::saferespawn} is not set:
+				set {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::saferespawn} to {@saferespawn}
+			loop {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%.spawns::*}:
+				loop {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%.players::*}:
+					set {_unsafe} to false
+					if {Arena.%loop-index-2%.team} is not {Arena.%{_player}%.team}:
+						set {_loop-player} to loop-index-2
+						set {_loop-player} to {_loop-player} parsed as player
+						set {_distance} to distance between {_player} and {_loop-player}
+						if {_distance} is smaller than {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::saferespawn}:
+							set {_unsafe} to true
+				if {_unsafe} is false:
+					teleport {_player} to loop-value
+					stop
+			loop {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%.spawns::*}:
+				teleport player to loop-value
+				stop			
+		if argument 1 is "balance":
+			set {_teammax} to 0
+			set {_teammin} to 1000
+			if {Arena.%argument 2%.%argument 3%::autoplayers} is not set:
+				set {Arena.%argument 2%.%argument 3%::autoplayers} to {@autoplayers}
+			if {Arena.%argument 2%.%argument 3%::autoplayers} is smaller than 2:
+				if {Arena.warned} is not set:
+					broadcast "%prefix% Someone who can acess the server files is really retarded"
+					broadcast "%prefix% Luckily I built in an a failsafe for such morons"
+					broadcast "%prefix% And seriously how can you oversee DONT SET THIS TO 1 OR 0"
+				if {Arena.warned} is true:
+					broadcast "%prefix% Ah the sweet smell of wrong settings"
+					broadcast "%prefix% Did I mention that the Server Owner is retarded?"
+				set {Arena.%argument 2%.%argument 3%::autoplayers} to 2
+				set {Arena.warned} to true
+			set {_balance} to false
+			while {_balance} is false: 
+				loop integers between 0 and {Arena.%argument 2%.%argument 3%::teams}:
+					set {_team.%loop-number%} to 0
+				loop {Arena.%argument 2%.%argument 3%.players::*}:
+					if {Arena.%loop-index%.team} is set:
+						add 1 to {_team.%{Arena.%loop-index%.team}%}
+					if {Arena.%loop-index%.team} is not set:
+						add 1 to {_undecided} 
+				loop integers between 0 and {Arena.%argument 2%.%argument 3%::teams}:
+					if {_team.%loop-number%} is bigger than 0:
+						if {_team.%loop-number%} is bigger than {_teammax}:
+							set {_teammax} to {_team.%loop-number%}
+							set {_whomax} to loop-number
+						if {_team.%loop-number%} is smaller than {_teammin}:
+							set {_teammin}  to {_team.%loop-number%}
+							set {_whomin} to loop-number
+				if difference between {_teammax} and {_teammin} is smaller than {Arena.%argument 2%.%argument 3%::autoplayers}:
+					if {_undecided} is 0:
+						set {_balance} to true
+				if {_undecided} is bigger than 0:
+					loop {Arena.%argument 2%.%argument 3%.players::*}:
+						if {Arena.%loop-index%.team} is not set:
+							set {Arena%loop-index%.team} to {_whomin}
+							add 1 to {_teammin}
+							if difference between {_teammax} and {_teammin} is smaller than 2:
+								exit 1 loop
+				if difference between {_teammax} and {_teammin} is bigger than {Arena.%argument 2%.%argument 3%::autoplayers}:
+					loop {Arena.%argument 2%.%argument 3%.players::*}:
+						if {Arena.%loop-index%.team} is {_whomax}:
+							set {Arena.%loop-index%.team} to {_whomin}
+							add 1 to {_teammin}
+							remove 1 from {_teammax}
+							if difference between {_teammax} and {_teammin} is smaller than 2:
+								exit 1 loop
+				wait 0.1 seconds
 #
 #----------- Setting ----------
 #
 
+command /Arenaset <text> <text> <text> [<integer>]:
+	description: Build a nice Arena
+	usage: /Arenaset %arenatype% %arenaname% %thing to set% [%value%]
+	permission:	{@admin.permission},{@build.permission}
+	trigger:
+		if argument 3 is "teamlobby":
+			set {Arena.%argument 1%.%argument 2%.%argument 4%::lobby} to location of player
+			set {Arena.respawnbed.1.%location of player%} to argument 1
+			set {Arena.respawnbed.2.%location of player%} to argument 2
+			set {Arena.respawnbed.3.%location of player%} to argument 4
+			message "Lobby set"
+		if argument 3 is "lobby":
+			if {Arena.%argument 1%.%argument 2%::lobby} is set:
+				message "An arena with this name already Exists.If you want to replace it add 1 to your command"
+				if argument 4 is not set:
+					stop
+			set {Arena.%argument 1%.%argument 2%::lobby} to location of player
+			message "Lobby set"
+		if argument 3 is "spawn":		
+			loop {Arena.%argument 1%.%argument 2%.spawns::*}:
+				add 1 to {_spawns}
+			if {Arena.%argument 1%.%argument 2%::maxspawns} is not set:
+				set {Arena.%argument 1%.%argument 2%::maxspawns} to {@maxspawns}
+			if {_spawns} is bigger than {Arena.%argument 1%.%argument 2%::maxspawns} :
+				message "Max spawn number reached.Use set maxspawns higher than %{_spawns}%"
+				stop
+			add location of player to {Arena.%argument 1%.%argument 2%.spawns::*}
+			message "Spawnpoint added."
+		if argument 3 is "respawn":
+			if argument 4 is not 1:
+				if {Arena.%argument 1%.%argument 2%::spawn} is set:
+					message "An spawn in this Arena already Exists.If you want to replace it add 1 to your command"
+					stop
+			set {Arena.%argument 1%.%argument 2%::spawn} to location of player
+			message "Respawn set"
+		if argument 3 is "maxspawns":
+			if argument 4 is set:
+				loop {Arena.%argument 1%.%argument 2%.spawns::*}:
+					add 1 to {_spawns}
+				if argument 4 is smaller than {_spawns}:
+					message "You have to enter a higher number than %{_spawns}% or remove some spawns."
+					stop
+				set {Arena.%argument 1%.%argument 2%::maxspawns} to argument 4
+				message "Set maximum Number of spawns to %argument 4% currently there are %{_spawns}%"
+				stop
+			message "Please enter the max number of spawns"
+		if argument 3 is "maxplayers":
+			if argument 4 is set:
+				if argument-4 is smaller than 2 :
+					message "You cant set the number of maximum players that low"
+					stop
+				if {Arena.%argument 1%.%argument 2%::minplayers} is not set:
+					set {Arena.%argument 1%.%argument 2%::minplayers} to {@minplayers}
+				if argument 4 is smaller than {Arena.%argument 1%.%argument 2%::minplayers} :
+					message "You can't set the number of maximum players lower than the amount of minimum players"
+					message "Use /%argument 1% set minplayers to change that"
+					stop
+				set {Arena.%argument 1%.%argument 2%::maxplayers} to argument 4
+				message "Set maximum Number of Players to %argument 4%"
+				stop
+			message "Please enter the max number of players"
+		if argument 3 is "minplayers":		
+			if argument 4 is set:
+#				if argument-4 is smaller than 2 :
+#					message "You cant set the number of maximum players that low"
+#					stop
+				if {Arena.%argument 1%.%argument 2%::maxplayers} is not set:
+					set {Arena.%argument 1%.%argument 2%::maxplayers} to {@maxplayers}
+				if argument 4 is bigger than {Arena.%argument 1%.%argument 2%::maxplayers} :
+					message "You can't set the number of minimum players higher than the amount of maximum players"
+					message "Use /%argument 1% set maxplayers to change that"
+					stop
+				set {Arena.%argument 1%.%argument 2%::minplayers} to argument 4
+				message "Set minimum Number of player to %argument 4%"
+				stop
+			message "Please enter the minimum number of players"
+		if argument 3 is "saferespawn":
+			if argument 4 is set:
+				set {Arena.%argument 1%.%argument 2%::saferespawn} to argument 4
+				message "Safe respawn distance set"
+				stop
+			message "Please enter the saferespawn distance"
+		if argument 3 is "teams":
+			if argument 4 is set:
+				if argument-4 is smaller than 2: 
+					message "You need to have more than 1 Team"
+					stop
+				set {Arena.%argument 1%.%argument 2%::teams} to argument 4
+				message "Max Number of teams set to %argument 4%"
+				stop
+			message "Please enter the max number of teams"
+		if argument 3 is "autoplayers":
+			if argument 4 is set:
+				if argument-4 is smaller than 2: 
+					message "You can't set this to 1 or 0... What about uneven numbers?"
+					stop
+				set {Arena.%argument 1%.%argument 2%::autoplayers} to argument 4
+				message "Number of players required to trigger autobalance set to %argument 4% "
+				stop
+			message "Please enter the number of players required to trigger autobalance"
+		if argument 3 is "votestart":
+			if argument 4 is set:
+				if argument 4 is smaller than 1: 
+					message "You can't set this to 0... "
+					stop
+				set {Arena.%argument 1%.%argument 2%::votestart} to argument 4
+				message "Number of players required to vote for start set to %argument 4% "
+				stop
+			message "Please enter the number of players required to vote for start"
+		if argument 3 is "scramble":
+			if {Arena.%argument 1%.%argument 2%::scramble} is not set:
+				set {Arena.%argument 1%.%argument 2%::scramble} to {@scramble}
+			if {Arena.%argument 1%.%argument 2%::scramble} is true:
+				set {Arena.%argument 1%.%argument 2%::scramble} to false
 
 #
 #----------- EVENTS ----------
