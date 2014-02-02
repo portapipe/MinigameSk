@@ -1,0 +1,43 @@
+# ################################################################################## #
+# ##########################Common Messages in English:############################# #
+# ################################################################################## #
+	NotPlayable: %argument 1% can't be played on this server.		#Argument 1 will be the type of the arena
+	NotExisting: %argument 2% can't be found.						#Argument 2 will be the name of the arena
+	NotFinished: This arena is missing some stuff.
+	AlreadyIngame:	Leave your current game before joining a new one
+	Full: This arena is already full.
+	NotFull: This arena needs more players to start
+	Joining: You succesfully entered the %argument 1% arena %argument 2%
+	Leaving: You left the %argument 1% arena %argument 2%
+	Vote: You succesfully voted for starting the Arena
+	Cannotvote: You can't vote now...
+	Didvote: You already voted
+	Novotes: Not enough players voted to start the arena
+	Starting: Starting %{Arena.%player%.game}% game in %{Arena.%player%.lobby}%
+	Winning: %{Arena.%{_player}%.team}%& Team%{Arena.%{_player}%.team}% has won the game in the %argument 1% Arena %argument 2%
+# ################################################################################## #
+# ################################################################################## #
+# ################################################################################## #
+
+
+
+# ################################################################################## #
+# ##########################Common Messages in German :############################# #
+# ################################################################################## #
+	NotPlayable: %argument 1% kann auf diesem Server nicht gespielt werden.		#Argument 1 will be the type of the arena
+	NotExisting: %argument 2% kann nicht gefunden werden.						#Argument 2 will be the name of the arena
+	NotFinished: Diese Arena ist nicht Vollständig.
+	AlreadyIngame:	Bitte verlasse deine derzeitige Arena zuerst.
+	Full: Diese Arena ist voll.
+	NotFull: Es werden mehr Spieler zum starten benötigt.
+	Joining: Du hast erfolgreich die %argument 1% arena %argument 2% betreten.
+	Leaving: Du hast die %argument 1% arena %argument 2% verlassen.
+	Vote: Du hast erfolgreich für das starten der Arena gestimmt
+	Cannotvote: Du kannst jetzt nicht abstimmen.
+	Didvote: Du hast bereits abgestimmt
+	Novotes: Es haben noch nicht genügend Spieler für das Starten der Arena gestimmt
+	Starting: Starte %{Arena.%player%.game}% spiel in der arena %{Arena.%player%.lobby}%
+	Winning: %{Arena.%{_player}%.team}%& Team%{Arena.%{_player}%.team}% hat das spiel in der %argument 1% Arena %argument 2% gewonnen!
+# ################################################################################## #
+# ################################################################################## #
+# ################################################################################## #
