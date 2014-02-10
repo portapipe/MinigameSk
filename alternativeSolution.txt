@@ -1,0 +1,437 @@
+
+
+
+
+
+
+command /MinigameC <text> [<text>] [<text>]:
+	description: join a Minigame
+	usage: /Minigame %Minigametype% %Minigamename%
+	permission:	Minigame.use
+	trigger:
+		if argument 3 is set:
+			set {_prefix} to argument 3
+		if argument 3 is not set:
+			set {_prefix} to "{@prefix}"
+		
+		## LEAVE/QUIT Minigame	
+		if argument 1 is "leave","quit" or "exit":
+			if {Minigame.%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%::win} is false:
+				if {@loosepoints} is true:
+					reduce {Minigame.%player%.%{Minigame.%player%.game}%} by {Minigame.%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%.players::%player%}
+			set {Minigame%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%::players::%player%} to 0
+			remove 1 from {Minigame.%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%::players}
+			teleport player to {Minigame.%player%.location}
+			clear {Minigame.%player%.lobby}
+			clear {Minigame.%player%.game}
+			stop
+			
+			
+		if argument 1 is "votestart":
+			if  {Minigame.%player%.game} is not set:
+				message "%{_prefix}% {@Cannotvote}"
+				stop
+			if {Minigame.%player%.votestart} is true:
+				message "%{_prefix}% {@Didvote}"
+			if {Minigame.%player%.votestart} is false:
+				set {Minigame.%player%.votestart} to true
+				message "%{_prefix}% {@Vote}"
+			loop {Minigame.%argument 1%.%argument 2%.players::*}:
+				if {Minigame.%loop-value%.team} is set:
+					add 1 to {_team.%{Minigame.%loop-value%.team}%} 
+				if {Minigame.%loop-value%.votestart} is true:
+					add 1 to {_votestart}
+			if {Minigame.%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%::minplayers} is not set:
+				set {Minigame.%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%::minplayers} to {@minplayers}
+			if {Minigame.%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%::players} is smaller than {Minigame.%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%::minplayers}:
+				message "%{_prefix}% {@NotFull}"
+				stop
+			if {Minigame.%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%::votestart} is set:
+				if {_votestart} is smaller than {Minigame.%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%::votestart}:
+					message "%{_prefix}% {@Novotes}"
+					stop
+			if {Minigame.%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%::votestart} is not set:
+				if {_votestart} is smaller than {@votestart}:
+					message "%{_prefix}% {@Novotes}"
+					stop
+			if {Minigame.%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%::scramble} is not set:
+				set {Minigame.%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%::scramble} to {@scramble}
+			if {Minigame.%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%::scramble} is true:
+				set {_scrambler} to 1
+				if {Minigame.%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%::teams} is not set:
+					set {Minigame.%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%::teams} to {@teams}
+				loop {Minigame.%argument 1%.%argument 2%.players::*}:
+					if {_scrambler} is {Minigame.%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%::teams}:
+						set {_scrambler} to 1
+					set {Minigame.%loop-value%.team} to {_scrambler}
+					broadcast "Set team of %player% to %{_scrambler}%"
+			set {_wait} to now
+			while difference between {_wait} and now is less than 10 seconds:
+				set {_diff} to difference between {_wait} and now
+				set {_diff} to {_diff}-10
+				set {_diff} to {_diff}*-1
+#				loop {Minigame.%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%::players::*}:
+#					set {_player} to loop-index
+#					send "%{_prefix}% %{_diff}% seconds till game start" to {_player}
+				send "%{_prefix}% %{_diff}% seconds till game start" to {Minigame.%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%.players::*}
+				wait 1 second
+			broadcast "%{_prefix}% {@Starting}"	
+			loop {Minigame.%argument 1%.%argument 2%.players::*}:
+				execute console command "/Minigamecommand balance %{Minigame.%player%.game}% %{Minigame.%player%.lobby}%"
+				execute console command "/Minigamecommand spawn %loop-index%"
+			stop
+		if argument 1 is "paintball":
+			if {@paintball} is not true:
+				message "%{_prefix}% {@NotPlayable}"
+				stop
+		if argument 1 is "Rush":
+			if {@Rush} is not true:
+				message "%{_prefix}% {@NotPlayable}"
+				stop
+		if argument 1 is "Rush" or "paintball":
+			if {Minigame.%player%.lobby} is not argument 2:
+				message "%{_prefix}% {@AlreadyIngame}"	
+				stop
+			if {Minigame.%argument 1%.%argument 2%::lobby} is not set:
+				message "%{_prefix}% {@NotExisting}"
+				stop
+			if argument 1 is "paintball":
+				if {Minigame.%argument 1%.%argument 2%::spawns} is 0:
+					message "%{_prefix}% {@NotFinished}"
+					stop
+			if argument 1 is "Rush":
+				if {Minigame.%argument 1%.%argument 2%.1::lobby} is not set:
+					message "%{_prefix}% {@NotFinished}"
+					stop
+				if {Minigame.%argument 1%.%argument 2%.2::lobby} is not set:
+					message "%{_prefix}% {@NotFinished}"
+					stop
+			if {Minigame.%argument 1%.%argument 2%::maxplayers} is not set:
+				set {Minigame.%argument 1%.%argument 2%::maxplayers} to {@maxplayers}
+			if {Minigame.%argument 1%.%argument 2%::players} is equal to {Minigame.%argument 1%.%argument 2%::maxplayers}:
+				message "%{_prefix}% {@Full}"
+				stop
+			set {Minigame.%argument 1%.%argument 2%::players::%player%} to 0
+			add 1 to {Minigame.%argument 1%.%argument 2%::players}
+			set {Minigame.%player%.location} to location of player
+			teleport player to {Minigame.%argument 1%.%argument 2%::lobby}
+			set {Minigame.%player%.lobby} to argument 2
+			set {Minigame.%player%.game} to argument 1
+			message "%{_prefix}% {@Joining}"
+
+
+#Minigamecommand for using easier structure without security expense
+
+command /Minigamecommand <text> [<text>] [<text>] [<timespan>]:
+	description: only useable by console
+	usage: Not your concern
+	executable by: console
+	trigger:
+		if argument 1 is "rollback":
+			set {_player} to argument 2 parsed as player
+			loop {Minigame.%{Minigame.%{_player}%.game}%.%{Minigame.%{_player}%.lobby}%::rollback::*}:
+				set block at location of loop-value to {Minigame.blocktype.%loop-value%}
+		if argument 1 is "quit":
+			set {_player} to argument 2 parsed as player
+			set {Minigame%{Minigame.%{_player}%.game}%.%{Minigame.%{_player}%.lobby}%::players::%{_player}%} to 0
+			remove 1 from {Minigame.%{Minigame.%{_player}%.game}%.%{Minigame.%{_player}%.lobby}%::players}
+			teleport {_player} to {Minigame.%{_player}%.location}
+			clear {Minigame.%{_player}%.lobby}
+			clear {Minigame.%{_player}%.game}
+		if argument 1 is "score":
+			set {_player} to argument 2 parsed as player
+			add 1 to {Minigame.%{Minigame.%{_player}%.game}%.%{Minigame.%{_player}%.lobby}%.players::%{_player}%}
+			add 1 to {Minigame.%{_player}%.%{Minigame.%{_player}%.game}%}
+			if {Minigame.%{Minigame.%{_player}%.game}%.%{Minigame.%{_player}%.lobby}%::winkills} is not set:
+				set {Minigame.%{Minigame.%{_player}%.game}%.%{Minigame.%{_player}%.lobby}%::winkills} to {@winkills}
+			add 1 to {Minigame.%{Minigame.%{_player}%.game}%.%{Minigame.%{_player}%.lobby}%::teams::%{Minigame.%{_player}%.team}%}
+			if  {Minigame.%{Minigame.%{_player}%.game}%.%{Minigame.%{_player}%.lobby}%::teams::%{Minigame.%{_player}%.team}%} is {Minigame.%{Minigame.%{_player}%.game}%.%{Minigame.%{_player}%.lobby}%::winkills}:
+				broadcast "%{_prefix}% %{Minigame.%{_player}%.team}%& Team%{Minigame.%{_player}%.team}% has won the game in the %argument 1% Minigame %argument 2%"
+				loop {Minigame.%{Minigame.%{_player}%.game}%.%{Minigame.%{_player}%.lobby}%.players::*}:
+					execute console command "/Minigamecommand quit %loop-index%"
+				stop
+		if argument 1 is "winscore":
+			broadcast "%{_prefix}% %{Minigame.%{_player}%.team}%& Team%{Minigame.%{_player}%.team}% has won the game in the %argument 1% Minigame %argument 2%"
+			loop {Minigame.%{Minigame.%{_player}%.game}%.%{Minigame.%{_player}%.lobby}%.players::*}:
+				execute console command "/Minigamecommand quit %loop-index%"
+				add 1 to {Minigame.%{_player}%.%{Minigame.%{_player}%.game}%}
+			
+			execute console command "/Minigamecommand updatescore %{Minigame.%{_player}%.game}% %{Minigame.%{_player}%.lobby}%"
+		if argument 1 is "respawn":
+			set {_player} to argument 2 parsed as player
+			teleport {_player} to {Minigame.%{Minigame.%{_player}%.game}%.%{Minigame.%{_player}%.lobby}%::spawn}
+			if {Minigame.%{Minigame.%{_player}%.game}%.%{Minigame.%{_player}%.lobby}%::respawn} is not set:
+				set {Minigame.%{Minigame.%{_player}%.game}%.%{Minigame.%{_player}%.lobby}%::respawn} to {@respawn}
+			if argument 4 is not set:
+				loop numbers between {Minigame.%{Minigame.%{_player}%.game}%.%{Minigame.%{_player}%.lobby}%::respawn} and 0:
+					message "%loop-value"
+					wait 1 second
+			if argument 4 is set:
+				wait argument 4
+			execute console command "/Minigamecommand spawn %{_player}%"
+			stop
+		if argument 1 is "spawn":
+			set {_player} to argument 2 parsed as player
+			if {_player} doesn't have 1 {@%{Minigame.%{_player}%.game}%.equipment}
+				give {_player} 1 {@%{Minigame.%{_player}%.game}%.equipment}
+			if {Minigame.%{Minigame.%{_player}%.game}%.%{Minigame.%{_player}%.lobby}%::saferespawn} is not set:
+				set {Minigame.%{Minigame.%{_player}%.game}%.%{Minigame.%{_player}%.lobby}%::saferespawn} to {@saferespawn}
+			loop {Minigame.%{Minigame.%{_player}%.game}%.%{Minigame.%{_player}%.lobby}%.spawns::*}:
+				loop {Minigame.%{Minigame.%{_player}%.game}%.%{Minigame.%{_player}%.lobby}%.players::*}:
+					set {_unsafe} to false
+					if {Minigame.%loop-index-2%.team} is not {Minigame.%{_player}%.team}:
+						set {_loop-player} to loop-index-2
+						set {_loop-player} to {_loop-player} parsed as player
+						set {_distance} to distance between {_player} and {_loop-player}
+						if {_distance} is smaller than {Minigame.%{Minigame.%{_player}%.game}%.%{Minigame.%{_player}%.lobby}%::saferespawn}:
+							set {_unsafe} to true
+				if {_unsafe} is false:
+					teleport {_player} to loop-value
+					stop
+			loop {Minigame.%{Minigame.%{_player}%.game}%.%{Minigame.%{_player}%.lobby}%.spawns::*}:
+				teleport player to loop-value
+				stop			
+		if argument 1 is "balance":
+			set {_teammax} to 0
+			set {_teammin} to 1000
+			if {Minigame.%argument 2%.%argument 3%::autoplayers} is not set:
+				set {Minigame.%argument 2%.%argument 3%::autoplayers} to {@autoplayers}
+			if {Minigame.%argument 2%.%argument 3%::autoplayers} is smaller than 2:
+				if {Minigame.warned} is not set:
+					broadcast "%prefix% Someone who can acess the server files is really retarded"
+					broadcast "%prefix% Luckily I built in an a failsafe for such morons"
+					broadcast "%prefix% And seriously how can you oversee DONT SET THIS TO 1 OR 0"
+				if {Minigame.warned} is true:
+					broadcast "%prefix% Ah the sweet smell of wrong settings"
+					broadcast "%prefix% Did I mention that the Server Owner is retarded?"
+				set {Minigame.%argument 2%.%argument 3%::autoplayers} to 2
+				set {Minigame.warned} to true
+			set {_balance} to false
+			while {_balance} is false: 
+				loop integers between 0 and {Minigame.%argument 2%.%argument 3%::teams}:
+					set {_team.%loop-number%} to 0
+				loop {Minigame.%argument 2%.%argument 3%.players::*}:
+					if {Minigame.%loop-index%.team} is set:
+						add 1 to {_team.%{Minigame.%loop-index%.team}%}
+					if {Minigame.%loop-index%.team} is not set:
+						add 1 to {_undecided} 
+				loop integers between 0 and {Minigame.%argument 2%.%argument 3%::teams}:
+					if {_team.%loop-number%} is bigger than 0:
+						if {_team.%loop-number%} is bigger than {_teammax}:
+							set {_teammax} to {_team.%loop-number%}
+							set {_whomax} to loop-number
+						if {_team.%loop-number%} is smaller than {_teammin}:
+							set {_teammin}  to {_team.%loop-number%}
+							set {_whomin} to loop-number
+				if difference between {_teammax} and {_teammin} is smaller than {Minigame.%argument 2%.%argument 3%::autoplayers}:
+					if {_undecided} is 0:
+						set {_balance} to true
+				if {_undecided} is bigger than 0:
+					loop {Minigame.%argument 2%.%argument 3%.players::*}:
+						if {Minigame.%loop-index%.team} is not set:
+							set {Minigame%loop-index%.team} to {_whomin}
+							add 1 to {_teammin}
+							if difference between {_teammax} and {_teammin} is smaller than 2:
+								exit 1 loop
+				if difference between {_teammax} and {_teammin} is bigger than {Minigame.%argument 2%.%argument 3%::autoplayers}:
+					loop {Minigame.%argument 2%.%argument 3%.players::*}:
+						if {Minigame.%loop-index%.team} is {_whomax}:
+							set {Minigame.%loop-index%.team} to {_whomin}
+							add 1 to {_teammin}
+							remove 1 from {_teammax}
+							if difference between {_teammax} and {_teammin} is smaller than 2:
+								exit 1 loop
+				wait 0.1 seconds
+#
+#----------- Setting ----------
+#
+
+command /Minigameset <text> <text> <text> [<integer>]:
+	description: Build a nice Minigame
+	usage: /Minigameset %Minigametype% %Minigamename% %thing to set% [%value%]
+	permission:	{@admin.permission},{@build.permission}
+	trigger:
+		if argument 3 is "teamlobby":
+			set {Minigame.%argument 1%.%argument 2%.%argument 4%::lobby} to location of player
+			set {Minigame.respawnbed.1.%location of player%} to argument 1
+			set {Minigame.respawnbed.2.%location of player%} to argument 2
+			set {Minigame.respawnbed.3.%location of player%} to argument 4
+			message "Lobby set"
+		if argument 3 is "lobby":
+			if {Minigame.%argument 1%.%argument 2%::lobby} is set:
+				message "An Minigame with this name already Exists.If you want to replace it add 1 to your command"
+				if argument 4 is not set:
+					stop
+			set {Minigame.%argument 1%.%argument 2%::lobby} to location of player
+			message "Lobby set"
+		if argument 3 is "spawn":		
+			loop {Minigame.%argument 1%.%argument 2%.spawns::*}:
+				add 1 to {_spawns}
+			if {Minigame.%argument 1%.%argument 2%::maxspawns} is not set:
+				set {Minigame.%argument 1%.%argument 2%::maxspawns} to {@maxspawns}
+			if {_spawns} is bigger than {Minigame.%argument 1%.%argument 2%::maxspawns} :
+				message "Max spawn number reached.Use set maxspawns higher than %{_spawns}%"
+				stop
+			add location of player to {Minigame.%argument 1%.%argument 2%.spawns::*}
+			message "Spawnpoint added."
+		if argument 3 is "respawn":
+			if argument 4 is not 1:
+				if {Minigame.%argument 1%.%argument 2%::spawn} is set:
+					message "An spawn in this Minigame already Exists.If you want to replace it add 1 to your command"
+					stop
+			set {Minigame.%argument 1%.%argument 2%::spawn} to location of player
+			message "Respawn set"
+		if argument 3 is "maxspawns":
+			if argument 4 is set:
+				loop {Minigame.%argument 1%.%argument 2%.spawns::*}:
+					add 1 to {_spawns}
+				if argument 4 is smaller than {_spawns}:
+					message "You have to enter a higher number than %{_spawns}% or remove some spawns."
+					stop
+				set {Minigame.%argument 1%.%argument 2%::maxspawns} to argument 4
+				message "Set maximum Number of spawns to %argument 4% currently there are %{_spawns}%"
+				stop
+			message "Please enter the max number of spawns"
+		if argument 3 is "maxplayers":
+			if argument 4 is set:
+				if argument-4 is smaller than 2 :
+					message "You cant set the number of maximum players that low"
+					stop
+				if {Minigame.%argument 1%.%argument 2%::minplayers} is not set:
+					set {Minigame.%argument 1%.%argument 2%::minplayers} to {@minplayers}
+				if argument 4 is smaller than {Minigame.%argument 1%.%argument 2%::minplayers} :
+					message "You can't set the number of maximum players lower than the amount of minimum players"
+					message "Use /%argument 1% set minplayers to change that"
+					stop
+				set {Minigame.%argument 1%.%argument 2%::maxplayers} to argument 4
+				message "Set maximum Number of Players to %argument 4%"
+				stop
+			message "Please enter the max number of players"
+		if argument 3 is "minplayers":		
+			if argument 4 is set:
+#				if argument-4 is smaller than 2 :
+#					message "You cant set the number of maximum players that low"
+#					stop
+				if {Minigame.%argument 1%.%argument 2%::maxplayers} is not set:
+					set {Minigame.%argument 1%.%argument 2%::maxplayers} to {@maxplayers}
+				if argument 4 is bigger than {Minigame.%argument 1%.%argument 2%::maxplayers} :
+					message "You can't set the number of minimum players higher than the amount of maximum players"
+					message "Use /%argument 1% set maxplayers to change that"
+					stop
+				set {Minigame.%argument 1%.%argument 2%::minplayers} to argument 4
+				message "Set minimum Number of player to %argument 4%"
+				stop
+			message "Please enter the minimum number of players"
+		if argument 3 is "saferespawn":
+			if argument 4 is set:
+				set {Minigame.%argument 1%.%argument 2%::saferespawn} to argument 4
+				message "Safe respawn distance set"
+				stop
+			message "Please enter the saferespawn distance"
+		if argument 3 is "teams":
+			if argument 4 is set:
+				if argument-4 is smaller than 2: 
+					message "You need to have more than 1 Team"
+					stop
+				set {Minigame.%argument 1%.%argument 2%::teams} to argument 4
+				message "Max Number of teams set to %argument 4%"
+				stop
+			message "Please enter the max number of teams"
+		if argument 3 is "autoplayers":
+			if argument 4 is set:
+				if argument-4 is smaller than 2: 
+					message "You can't set this to 1 or 0... What about uneven numbers?"
+					stop
+				set {Minigame.%argument 1%.%argument 2%::autoplayers} to argument 4
+				message "Number of players required to trigger autobalance set to %argument 4% "
+				stop
+			message "Please enter the number of players required to trigger autobalance"
+		if argument 3 is "votestart":
+			if argument 4 is set:
+				if argument 4 is smaller than 1: 
+					message "You can't set this to 0... "
+					stop
+				set {Minigame.%argument 1%.%argument 2%::votestart} to argument 4
+				message "Number of players required to vote for start set to %argument 4% "
+				stop
+			message "Please enter the number of players required to vote for start"
+		if argument 3 is "scramble":
+			if {Minigame.%argument 1%.%argument 2%::scramble} is not set:
+				set {Minigame.%argument 1%.%argument 2%::scramble} to {@scramble}
+			if {Minigame.%argument 1%.%argument 2%::scramble} is true:
+				set {Minigame.%argument 1%.%argument 2%::scramble} to false
+
+#
+#----------- EVENTS ----------
+#
+on sign change:
+	if line 1 of event-block is "[Minigame]":
+		if player does not have permission {@command.signs}:
+			message "I am afraid I can't let you do that"
+			stop
+on rightclick on sign:
+	if line 1 of event-block is "[Minigame]":
+		if line 2 of event-block is "join":
+			make player execute command "/Minigame %line 3 of event-block%"
+			stop
+		make player execute command "/Minigame %line 3 of event block% %line 2% of event-block%"
+	if line 1 of event-block is "[paintball]":
+		if line 2 of event-block is "join":
+			make player execute command "/paintball %line 3 of event-block%"
+			stop
+		make player execute command "/paintball %line 2 of event-block%"
+
+on place:
+	if {Minigame.%player%.game} is set:
+		add location of block to {Minigame.%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%::rollback::*}
+		set {Minigame.blocktype.%location of block%} to air
+on break:
+	if {Minigame.%player%.game} is set:
+		add location of block to {Minigame.%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%::rollback::*}
+		set {Minigame.blocktype.%location of block%} to event-block		
+on respawn:
+	if {Minigame.%{Minigame.%{_player}%.game}%.%{Minigame.%{_player}%.lobby}%::respawn} is not set:
+		set {Minigame.%{Minigame.%{_player}%.game}%.%{Minigame.%{_player}%.lobby}%::respawn} to {@respawn}
+	set {_time} to difference between {Minigame.%player%.respawn} and {Minigame.%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%::respawn}
+	execute console command "/Minigamecommand respawn %victim% in %{_time}% "
+	
+on quit:
+	if {Minigame.%player%.game} is set:
+		if {@loosepoints} is true:
+			reduce {Minigame.%player%.%{Minigame.%player%.game}%} by {Minigame.%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%.players::%player%}
+		execute console command "/Minigamecommand balance %{Minigame.%player%.game}% %{Minigame.paintball.%player%.lobby}%"
+		set {Minigame.%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%.players::%player%} to 0
+		remove 1 from {Minigame.%{Minigame.%player%.game}%.%{Minigame.%player%.lobby}%::players}
+		teleport player to {Minigame.%player%.location}
+		clear {Minigame.%player%.lobby}
+		clear {Minigame.%player%.game}
+on respawn:
+	if {Minigame.paintball.%player%.location} is set:
+		teleport player to {Minigame.paintball.%player%.location}
+		clear {Minigame.paintball.%player%.location}
+on damage:
+	if {Minigame.%victim%.game} is set :
+		if attacker is not a player:
+			if {@hurting} is false:
+				cancel event
+		if {Minigame.%attacker%.team} is {Minigame.%victim%.team}:
+			if {@friendlyfire} is false:
+				send "Stop Attacking your Teammates" to attacker
+				stop
+		if  {Minigame.%victim%.game} is "paintball":
+			if projectile is an snowball:
+				if {@realdeath} is true:
+					kill victim
+					set {Minigame.%victim%.respawn} to now
+					stop
+				if {@realdeath} is false:
+					set damage to 0
+					heal the victim
+					set {Minigame.%victim%.respawn} to now
+					stop
+					execute console command "/Minigamecommand respawn %victim%"
+				execute console command "/Minigamecommand score %attacker%"
+		if health of victim is 0.5:
+			if attacker is not an player:
+				if {@naturaldeath} is false:
+					set damage to 0
