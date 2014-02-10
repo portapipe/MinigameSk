@@ -6,24 +6,23 @@
 # Variables
 options:
 #Game Parameters:
-	winkills: 30				#How many kills lead to a win
-	wincaptures: 3				#How many flag/stuff captures lead to a win
-	maxplayers: 20				#Maximal numbers of players in one arena 
-	minplayers: 3				#Minimal number of players in one arena
-	maxspawns: 10				#Maximal number of spawns an arena can have
+	winpoints: 2				#How many kills lead to a win
+	maxplayers: 20				#Maximal numbers of players in one Minigame 
+	minplayers: 3				#Minimal number of players in one Minigame
 	votestart: 1				#Number of players that have to vote for start
+
 	#Team only options
 	friendlyfire: false			#If teammates can hurt each other (Negative potions effects will still be applied)
-	teams: 2				#Number of maximum Teams
+	teams: 2				    #Number of maximum Teams
 	autoteams: 2				#Teams that will automatically used by the Autobalance system
 	autoplayers: 2				#DONT SET THIS TO 1 OR 0!!! Number of players that can be in a different team before autobalance tries to distribute players evenly
-	ingamebalance: true			#If the automatic balancing should occur if players leave an running game
+	ingamebalance: false		#If the automatic balancing should occur if players leave an running game
 	scramble: true				#Automatically scramble all players
-	superiorscramble:999			#How superior a team has to be vs another to cause a scramble
+	superiorscramble:999		#How superior a team has to be vs another to cause a scramble
 	loosepoints: false			#If player loses points when leaving
 	
 #Damage types:
-	respawn: 0				Delay in seconds before spawning again (in competive gamemodes)
+	respawn: 0					Delay in seconds before spawning again (in competive gamemodes)
 	saferespawn: 10				#Minimal Distance from other players when respawning (if possible)
 	realdeath: true				#If you really get killed or just get ported to lobby to wait for respawn (should be off for factions[you would lose power otherwise])
 	hurting: true				#If you can get damaged by anything(except players)
@@ -34,11 +33,12 @@ options:
 	drowning: false				#If consuming air (going underwater) instantly kills
 	
 #Administrating Stuff
-	prefix: <magic>aaa<green>Ultimate Arena<reset><magic>aaa<reset> 	#The prefix shown before every message
-	admin.permission: Arena.admin								#The everything permission now with 20% more everything
-	build.permission : Arena.build 								#Allows people to build Arenas
-	mod.permission: Arena.mod									#Allows people to forcestart end or whatever but not to build
-	use.permission: Arena.use									#Allows people to use the Arena
+	prefix: <magic>aaa<green>Ultimate Minigame<reset><magic>aaa<reset> 	#The prefix shown before every message
+	prefixarg2: <magic>aaa<green>%argument 2%<reset><magic>aaa<reset> 	#The prefix shown before every message
+	admin.permission: Minigame.admin							#The everything permission now with 20% more everything
+	build.permission : Minigame.build							#Allows people to build Minigame
+	mod.permission: Minigame.mod								#Allows people to forcestart end or whatever but not to build
+	use.permission: Minigame.use								#Allows people to use the Minigame
 	command.signs: {@use.permission}							#Allows people to create automatic paintball command signs (you might want to make this an vip feature)
 
 
@@ -46,455 +46,62 @@ options:
 # ################################################################################## #
 # ##########################Common Messages in English:############################# #
 # ################################################################################## #
-	NotPlayable: %argument 1% can't be played on this server.		#Argument 1 will be the type of the arena
-	NotExisting: %argument 2% can't be found.						#Argument 2 will be the name of the arena
-	NotFinished: This arena is missing some stuff.
+	NotPlayable: %argument 1% can't be played on this server.		#Argument 1 will be the type of the Minigame
+	NotExisting: %argument 2% can't be found.						#Argument 2 will be the name of the Minigame
+	NotFinished: This Minigame is missing some stuff.
 	AlreadyIngame:	Leave your current game before joining a new one
-	Full: This arena is already full.
-	NotFull: This arena needs more players to start
-	Joining: You succesfully entered the %argument 1% arena %argument 2%
-	Leaving: You left the %argument 1% arena %argument 2%
-	Vote: You succesfully voted for starting the Arena
+	Full: This Minigame is already full.
+	NotFull: This Minigame needs more players to start
+	Joining: You succesfully entered the %argument 1% Minigame %argument 2%
+	Leaving: You left the %argument 1% Minigame %argument 2%
+	Vote: You succesfully voted for starting the Minigame
 	Cannotvote: You can't vote now...
 	Didvote: You already voted
-	Novotes: Not enough players voted to start the arena
-	Starting: Starting %{Arena.%player%.game}% game in %{Arena.%player%.lobby}%
-	Winning: %{Arena.%{_player}%.team}%& Team%{Arena.%{_player}%.team}% has won the game in the %argument 1% Arena %argument 2%
+	Novotes: Not enough players voted to start the Minigame
+	Starting: Starting %{Minigame.%player%.game}% game in %{Minigame.%player%.lobby}%
+	Winning: %{Minigame.%{_player}%.team}%& Team%{Minigame.%{_player}%.team}% has won the game in the %argument 1% Minigame %argument 2%
 # ################################################################################## #
 # ################################################################################## #
 # ################################################################################## #
 
 
-### Flags are the settings of each arena, all under 1 simple list of a variable
-# - Arena.arenagametype.arenaName::minPlayers|maxPlayers|team(number)|lobby|spawn(team or single)|and so on...
+### Flags are the settings of each Minigame, all under 1 simple list of a variable
+# - Minigame.Minigamegametype.MinigameName::minPlayers|maxPlayers|team(number)|lobby|spawn(team or single)|and so on...
 
 # Spectator? With "Plus" we can hide spectator from players and give them fly, nodrop, nohit, notarget...
 
 
-command /Arena <text> [<text>] [<text>]:
-	description: join a nice Arena
-	usage: /Arena %arenatype% %arenaname%
-	permission:	Arena.use
+
+
+command /Minigame <text> [<text>] [<text>]:
+	aliases: mg, mgm
+	description: join a Minigame
+	usage: /Minigame %Minigametype% %Minigamename%
+	permission:	Minigame.use
 	trigger:
-		if argument 3 is set:
-			set {_prefix} to argument 3
-		if argument 3 is not set:
-			set {_prefix} to "{@prefix}"
-		if argument 1 is "leave":
-			if {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%::win} is false:
-				if {@loosepoints} is true:
-					reduce {Arena.%player%.%{Arena.%player%.game}%} by {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%.players::%player%}
-			set {Arena%{Arena.%player%.game}%.%{Arena.%player%.lobby}%::players::%player%} to 0
-			remove 1 from {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%::players}
-			teleport player to {Arena.%player%.location}
-			clear {Arena.%player%.lobby}
-			clear {Arena.%player%.game}
-			stop
-		if argument 1 is "votestart":
-			if  {Arena.%player%.game} is not set:
-				message "%{_prefix}% {@Cannotvote}"
-				stop
-			if {Arena.%player%.votestart} is true:
-				message "%{_prefix}% {@Didvote}"
-			if {Arena.%player%.votestart} is false:
-				set {Arena.%player%.votestart} to true
-				message "%{_prefix}% {@Vote}"
-			loop {Arena.%argument 1%.%argument 2%.players::*}:
-				if {Arena.%loop-value%.team} is set:
-					add 1 to {_team.%{Arena.%loop-value%.team}%} 
-				if {Arena.%loop-value%.votestart} is true:
-					add 1 to {_votestart}
-			if {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%::minplayers} is not set:
-				set {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%::minplayers} to {@minplayers}
-			if {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%::players} is smaller than {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%::minplayers}:
-				message "%{_prefix}% {@NotFull}"
-				stop
-			if {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%::votestart} is set:
-				if {_votestart} is smaller than {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%::votestart}:
-					message "%{_prefix}% {@Novotes}"
-					stop
-			if {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%::votestart} is not set:
-				if {_votestart} is smaller than {@votestart}:
-					message "%{_prefix}% {@Novotes}"
-					stop
-			if {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%::scramble} is not set:
-				set {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%::scramble} to {@scramble}
-			if {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%::scramble} is true:
-				set {_scrambler} to 1
-				if {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%::teams} is not set:
-					set {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%::teams} to {@teams}
-				loop {Arena.%argument 1%.%argument 2%.players::*}:
-					if {_scrambler} is {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%::teams}:
-						set {_scrambler} to 1
-					set {Arena.%loop-value%.team} to {_scrambler}
-					broadcast "Set team of %player% to %{_scrambler}%"
-			set {_wait} to now
-			while difference between {_wait} and now is less than 10 seconds:
-				set {_diff} to difference between {_wait} and now
-				set {_diff} to {_diff}-10
-				set {_diff} to {_diff}*-1
-#				loop {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%::players::*}:
-#					set {_player} to loop-index
-#					send "%{_prefix}% %{_diff}% seconds till game start" to {_player}
-				send "%{_prefix}% %{_diff}% seconds till game start" to {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%.players::*}
-				wait 1 second
-			broadcast "%{_prefix}% {@Starting}"	
-			loop {Arena.%argument 1%.%argument 2%.players::*}:
-				execute console command "/Arenacommand balance %{Arena.%player%.game}% %{Arena.%player%.lobby}%"
-				execute console command "/Arenacommand spawn %loop-index%"
-			stop
-		if argument 1 is "paintball":
-			if {@paintball} is not true:
-				message "%{_prefix}% {@NotPlayable}"
-				stop
-		if argument 1 is "Rush":
-			if {@Rush} is not true:
-				message "%{_prefix}% {@NotPlayable}"
-				stop
-		if argument 1 is "Rush" or "paintball":
-			if {Arena.%player%.lobby} is not argument 2:
-				message "%{_prefix}% {@AlreadyIngame}"	
-				stop
-			if {Arena.%argument 1%.%argument 2%::lobby} is not set:
-				message "%{_prefix}% {@NotExisting}"
-				stop
-			if argument 1 is "paintball":
-				if {Arena.%argument 1%.%argument 2%::spawns} is 0:
-					message "%{_prefix}% {@NotFinished}"
-					stop
-			if argument 1 is "Rush":
-				if {Arena.%argument 1%.%argument 2%.1::lobby} is not set:
-					message "%{_prefix}% {@NotFinished}"
-					stop
-				if {Arena.%argument 1%.%argument 2%.2::lobby} is not set:
-					message "%{_prefix}% {@NotFinished}"
-					stop
-			if {Arena.%argument 1%.%argument 2%::maxplayers} is not set:
-				set {Arena.%argument 1%.%argument 2%::maxplayers} to {@maxplayers}
-			if {Arena.%argument 1%.%argument 2%::players} is equal to {Arena.%argument 1%.%argument 2%::maxplayers}:
-				message "%{_prefix}% {@Full}"
-				stop
-			set {Arena.%argument 1%.%argument 2%::players::%player%} to 0
-			add 1 to {Arena.%argument 1%.%argument 2%::players}
-			set {Arena.%player%.location} to location of player
-			teleport player to {Arena.%argument 1%.%argument 2%::lobby}
-			set {Arena.%player%.lobby} to argument 2
-			set {Arena.%player%.game} to argument 1
-			message "%{_prefix}% {@Joining}"
-
-
-#Arenacommand for using easier structure without security expense
-
-command /Arenacommand <text> [<text>] [<text>] [<timespan>]:
-	description: only useable by console
-	usage: Not your concern
-	executable by: console
-	trigger:
-		if argument 1 is "rollback":
-			set {_player} to argument 2 parsed as player
-			loop {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::rollback::*}:
-				set block at location of loop-value to {Arena.blocktype.%loop-value%}
-		if argument 1 is "quit":
-			set {_player} to argument 2 parsed as player
-			set {Arena%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::players::%{_player}%} to 0
-			remove 1 from {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::players}
-			teleport {_player} to {Arena.%{_player}%.location}
-			clear {Arena.%{_player}%.lobby}
-			clear {Arena.%{_player}%.game}
-		if argument 1 is "score":
-			set {_player} to argument 2 parsed as player
-			add 1 to {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%.players::%{_player}%}
-			add 1 to {Arena.%{_player}%.%{Arena.%{_player}%.game}%}
-			if {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::winkills} is not set:
-				set {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::winkills} to {@winkills}
-			add 1 to {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::teams::%{Arena.%{_player}%.team}%}
-			if  {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::teams::%{Arena.%{_player}%.team}%} is {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::winkills}:
-				broadcast "%{_prefix}% %{Arena.%{_player}%.team}%& Team%{Arena.%{_player}%.team}% has won the game in the %argument 1% Arena %argument 2%"
-				loop {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%.players::*}:
-					execute console command "/Arenacommand quit %loop-index%"
-				stop
-		if argument 1 is "winscore":
-			broadcast "%{_prefix}% %{Arena.%{_player}%.team}%& Team%{Arena.%{_player}%.team}% has won the game in the %argument 1% Arena %argument 2%"
-			loop {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%.players::*}:
-				execute console command "/Arenacommand quit %loop-index%"
-				add 1 to {Arena.%{_player}%.%{Arena.%{_player}%.game}%}
+		
+		if arg 1 is set:
 			
-			execute console command "/Arenacommand updatescore %{Arena.%{_player}%.game}% %{Arena.%{_player}%.lobby}%"
-		if argument 1 is "respawn":
-			set {_player} to argument 2 parsed as player
-			teleport {_player} to {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::spawn}
-			if {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::respawn} is not set:
-				set {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::respawn} to {@respawn}
-			if argument 4 is not set:
-				loop numbers between {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::respawn} and 0:
-					message "%loop-value"
-					wait 1 second
-			if argument 4 is set:
-				wait argument 4
-			execute console command "/Arenacommand spawn %{_player}%"
-			stop
-		if argument 1 is "spawn":
-			set {_player} to argument 2 parsed as player
-			if {_player} doesn't have 1 {@%{Arena.%{_player}%.game}%.equipment}
-				give {_player} 1 {@%{Arena.%{_player}%.game}%.equipment}
-			if {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::saferespawn} is not set:
-				set {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::saferespawn} to {@saferespawn}
-			loop {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%.spawns::*}:
-				loop {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%.players::*}:
-					set {_unsafe} to false
-					if {Arena.%loop-index-2%.team} is not {Arena.%{_player}%.team}:
-						set {_loop-player} to loop-index-2
-						set {_loop-player} to {_loop-player} parsed as player
-						set {_distance} to distance between {_player} and {_loop-player}
-						if {_distance} is smaller than {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::saferespawn}:
-							set {_unsafe} to true
-				if {_unsafe} is false:
-					teleport {_player} to loop-value
-					stop
-			loop {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%.spawns::*}:
-				teleport player to loop-value
-				stop			
-		if argument 1 is "balance":
-			set {_teammax} to 0
-			set {_teammin} to 1000
-			if {Arena.%argument 2%.%argument 3%::autoplayers} is not set:
-				set {Arena.%argument 2%.%argument 3%::autoplayers} to {@autoplayers}
-			if {Arena.%argument 2%.%argument 3%::autoplayers} is smaller than 2:
-				if {Arena.warned} is not set:
-					broadcast "%prefix% Someone who can acess the server files is really retarded"
-					broadcast "%prefix% Luckily I built in an a failsafe for such morons"
-					broadcast "%prefix% And seriously how can you oversee DONT SET THIS TO 1 OR 0"
-				if {Arena.warned} is true:
-					broadcast "%prefix% Ah the sweet smell of wrong settings"
-					broadcast "%prefix% Did I mention that the Server Owner is retarded?"
-				set {Arena.%argument 2%.%argument 3%::autoplayers} to 2
-				set {Arena.warned} to true
-			set {_balance} to false
-			while {_balance} is false: 
-				loop integers between 0 and {Arena.%argument 2%.%argument 3%::teams}:
-					set {_team.%loop-number%} to 0
-				loop {Arena.%argument 2%.%argument 3%.players::*}:
-					if {Arena.%loop-index%.team} is set:
-						add 1 to {_team.%{Arena.%loop-index%.team}%}
-					if {Arena.%loop-index%.team} is not set:
-						add 1 to {_undecided} 
-				loop integers between 0 and {Arena.%argument 2%.%argument 3%::teams}:
-					if {_team.%loop-number%} is bigger than 0:
-						if {_team.%loop-number%} is bigger than {_teammax}:
-							set {_teammax} to {_team.%loop-number%}
-							set {_whomax} to loop-number
-						if {_team.%loop-number%} is smaller than {_teammin}:
-							set {_teammin}  to {_team.%loop-number%}
-							set {_whomin} to loop-number
-				if difference between {_teammax} and {_teammin} is smaller than {Arena.%argument 2%.%argument 3%::autoplayers}:
-					if {_undecided} is 0:
-						set {_balance} to true
-				if {_undecided} is bigger than 0:
-					loop {Arena.%argument 2%.%argument 3%.players::*}:
-						if {Arena.%loop-index%.team} is not set:
-							set {Arena%loop-index%.team} to {_whomin}
-							add 1 to {_teammin}
-							if difference between {_teammax} and {_teammin} is smaller than 2:
-								exit 1 loop
-				if difference between {_teammax} and {_teammin} is bigger than {Arena.%argument 2%.%argument 3%::autoplayers}:
-					loop {Arena.%argument 2%.%argument 3%.players::*}:
-						if {Arena.%loop-index%.team} is {_whomax}:
-							set {Arena.%loop-index%.team} to {_whomin}
-							add 1 to {_teammin}
-							remove 1 from {_teammax}
-							if difference between {_teammax} and {_teammin} is smaller than 2:
-								exit 1 loop
-				wait 0.1 seconds
-#
-#----------- Setting ----------
-#
-
-command /Arenaset <text> <text> <text> [<integer>]:
-	description: Build a nice Arena
-	usage: /Arenaset %arenatype% %arenaname% %thing to set% [%value%]
-	permission:	{@admin.permission},{@build.permission}
-	trigger:
-		if argument 3 is "teamlobby":
-			set {Arena.%argument 1%.%argument 2%.%argument 4%::lobby} to location of player
-			set {Arena.respawnbed.1.%location of player%} to argument 1
-			set {Arena.respawnbed.2.%location of player%} to argument 2
-			set {Arena.respawnbed.3.%location of player%} to argument 4
-			message "Lobby set"
-		if argument 3 is "lobby":
-			if {Arena.%argument 1%.%argument 2%::lobby} is set:
-				message "An arena with this name already Exists.If you want to replace it add 1 to your command"
-				if argument 4 is not set:
-					stop
-			set {Arena.%argument 1%.%argument 2%::lobby} to location of player
-			message "Lobby set"
-		if argument 3 is "spawn":		
-			loop {Arena.%argument 1%.%argument 2%.spawns::*}:
-				add 1 to {_spawns}
-			if {Arena.%argument 1%.%argument 2%::maxspawns} is not set:
-				set {Arena.%argument 1%.%argument 2%::maxspawns} to {@maxspawns}
-			if {_spawns} is bigger than {Arena.%argument 1%.%argument 2%::maxspawns} :
-				message "Max spawn number reached.Use set maxspawns higher than %{_spawns}%"
-				stop
-			add location of player to {Arena.%argument 1%.%argument 2%.spawns::*}
-			message "Spawnpoint added."
-		if argument 3 is "respawn":
-			if argument 4 is not 1:
-				if {Arena.%argument 1%.%argument 2%::spawn} is set:
-					message "An spawn in this Arena already Exists.If you want to replace it add 1 to your command"
-					stop
-			set {Arena.%argument 1%.%argument 2%::spawn} to location of player
-			message "Respawn set"
-		if argument 3 is "maxspawns":
-			if argument 4 is set:
-				loop {Arena.%argument 1%.%argument 2%.spawns::*}:
-					add 1 to {_spawns}
-				if argument 4 is smaller than {_spawns}:
-					message "You have to enter a higher number than %{_spawns}% or remove some spawns."
-					stop
-				set {Arena.%argument 1%.%argument 2%::maxspawns} to argument 4
-				message "Set maximum Number of spawns to %argument 4% currently there are %{_spawns}%"
-				stop
-			message "Please enter the max number of spawns"
-		if argument 3 is "maxplayers":
-			if argument 4 is set:
-				if argument-4 is smaller than 2 :
-					message "You cant set the number of maximum players that low"
-					stop
-				if {Arena.%argument 1%.%argument 2%::minplayers} is not set:
-					set {Arena.%argument 1%.%argument 2%::minplayers} to {@minplayers}
-				if argument 4 is smaller than {Arena.%argument 1%.%argument 2%::minplayers} :
-					message "You can't set the number of maximum players lower than the amount of minimum players"
-					message "Use /%argument 1% set minplayers to change that"
-					stop
-				set {Arena.%argument 1%.%argument 2%::maxplayers} to argument 4
-				message "Set maximum Number of Players to %argument 4%"
-				stop
-			message "Please enter the max number of players"
-		if argument 3 is "minplayers":		
-			if argument 4 is set:
-#				if argument-4 is smaller than 2 :
-#					message "You cant set the number of maximum players that low"
-#					stop
-				if {Arena.%argument 1%.%argument 2%::maxplayers} is not set:
-					set {Arena.%argument 1%.%argument 2%::maxplayers} to {@maxplayers}
-				if argument 4 is bigger than {Arena.%argument 1%.%argument 2%::maxplayers} :
-					message "You can't set the number of minimum players higher than the amount of maximum players"
-					message "Use /%argument 1% set maxplayers to change that"
-					stop
-				set {Arena.%argument 1%.%argument 2%::minplayers} to argument 4
-				message "Set minimum Number of player to %argument 4%"
-				stop
-			message "Please enter the minimum number of players"
-		if argument 3 is "saferespawn":
-			if argument 4 is set:
-				set {Arena.%argument 1%.%argument 2%::saferespawn} to argument 4
-				message "Safe respawn distance set"
-				stop
-			message "Please enter the saferespawn distance"
-		if argument 3 is "teams":
-			if argument 4 is set:
-				if argument-4 is smaller than 2: 
-					message "You need to have more than 1 Team"
-					stop
-				set {Arena.%argument 1%.%argument 2%::teams} to argument 4
-				message "Max Number of teams set to %argument 4%"
-				stop
-			message "Please enter the max number of teams"
-		if argument 3 is "autoplayers":
-			if argument 4 is set:
-				if argument-4 is smaller than 2: 
-					message "You can't set this to 1 or 0... What about uneven numbers?"
-					stop
-				set {Arena.%argument 1%.%argument 2%::autoplayers} to argument 4
-				message "Number of players required to trigger autobalance set to %argument 4% "
-				stop
-			message "Please enter the number of players required to trigger autobalance"
-		if argument 3 is "votestart":
-			if argument 4 is set:
-				if argument 4 is smaller than 1: 
-					message "You can't set this to 0... "
-					stop
-				set {Arena.%argument 1%.%argument 2%::votestart} to argument 4
-				message "Number of players required to vote for start set to %argument 4% "
-				stop
-			message "Please enter the number of players required to vote for start"
-		if argument 3 is "scramble":
-			if {Arena.%argument 1%.%argument 2%::scramble} is not set:
-				set {Arena.%argument 1%.%argument 2%::scramble} to {@scramble}
-			if {Arena.%argument 1%.%argument 2%::scramble} is true:
-				set {Arena.%argument 1%.%argument 2%::scramble} to false
-
-#
-#----------- EVENTS ----------
-#
-on sign change:
-	if line 1 of event-block is "[Arena]":
-		if player does not have permission {@command.signs}:
-			message "I am afraid I can't let you do that"
-			stop
-on rightclick on sign:
-	if line 1 of event-block is "[Arena]":
-		if line 2 of event-block is "join":
-			make player execute command "/Arena %line 3 of event-block%"
-			stop
-		make player execute command "/Arena %line 3 of event block% %line 2% of event-block%"
-	if line 1 of event-block is "[paintball]":
-		if line 2 of event-block is "join":
-			make player execute command "/paintball %line 3 of event-block%"
-			stop
-		make player execute command "/paintball %line 2 of event-block%"
-
-on place:
-	if {Arena.%player%.game} is set:
-		add location of block to {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%::rollback::*}
-		set {Arena.blocktype.%location of block%} to air
-on break:
-	if {Arena.%player%.game} is set:
-		add location of block to {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%::rollback::*}
-		set {Arena.blocktype.%location of block%} to event-block		
-on respawn:
-	if {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::respawn} is not set:
-		set {Arena.%{Arena.%{_player}%.game}%.%{Arena.%{_player}%.lobby}%::respawn} to {@respawn}
-	set {_time} to difference between {Arena.%player%.respawn} and {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%::respawn}
-	execute console command "/Arenacommand respawn %victim% in %{_time}% "
-	
-on quit:
-	if {Arena.%player%.game} is set:
-		if {@loosepoints} is true:
-			reduce {Arena.%player%.%{Arena.%player%.game}%} by {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%.players::%player%}
-		execute console command "/Arenacommand balance %{Arena.%player%.game}% %{Arena.paintball.%player%.lobby}%"
-		set {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%.players::%player%} to 0
-		remove 1 from {Arena.%{Arena.%player%.game}%.%{Arena.%player%.lobby}%::players}
-		teleport player to {Arena.%player%.location}
-		clear {Arena.%player%.lobby}
-		clear {Arena.%player%.game}
-on respawn:
-	if {Arena.paintball.%player%.location} is set:
-		teleport player to {Arena.paintball.%player%.location}
-		clear {Arena.paintball.%player%.location}
-on damage:
-	if {Arena.%victim%.game} is set :
-		if attacker is not a player:
-			if {@hurting} is false:
-				cancel event
-		if {Arena.%attacker%.team} is {Arena.%victim%.team}:
-			if {@friendlyfire} is false:
-				send "Stop Attacking your Teammates" to attacker
-				stop
-		if  {Arena.%victim%.game} is "paintball":
-			if projectile is an snowball:
-				if {@realdeath} is true:
-					kill victim
-					set {Arena.%victim%.respawn} to now
-					stop
-				if {@realdeath} is false:
-					set damage to 0
-					heal the victim
-					set {Arena.%victim%.respawn} to now
-					stop
-					execute console command "/Arenacommand respawn %victim%"
-				execute console command "/Arenacommand score %attacker%"
-		if health of victim is 0.5:
-			if attacker is not an player:
-				if {@naturaldeath} is false:
-					set damage to 0
+			## JOIN Minigame
+			if arg 1 is "join":
+				if arg 2 is set:
+					
+					## IF minigame exists
+					if {minigame.arena.%arg 2%::name} is set:
+					
+						## IF minigame is started
+						if {minigame.arena.%arg 2%::started} is true:
+							
+							##IF minigame is full
+							if {minigame.arena.%arg 2%::numplayers} is {minigame.arena.%arg 2%::maxplayer}:
+								message "{@prefixarg2} {@Full}"
+								stop
+							
+						set {minigame.player.%player%::arena} to arg 2
+						add 1 to {minigame.arena.%arg 2%::numplayers}
+					
+						message "{@prefixarg2} {@Joining}"							
+						
+					else:
+						message "{@prefix} {@NotExisting}"
+						stop
