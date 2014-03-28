@@ -21,11 +21,25 @@ options:
 	separator: "<blue>####################<reset>"
 	version : "V.01"
 
+
+
+
+#--- LANGUAGE
+	langPlayer 			:	Player
+	langPoint			:	Points
+	langJoin			:	Join
+	langNameUsed		:	An Arena with this name already exists!
+
+
 command /minigame [<text>] [<text>] [<text>] [<text>]:
 	usage: <green>mg join/quit/list arena <reset>- <red>staff: mg create/delete/flag arena flagType flagValue
 	aliases: mg,mgm
 	permission: mg.active
 	trigger:
+
+
+
+#-------GENERAL COMMANDS---------
 
 		if arg 1 is not set:
 			message "{@separator}"
@@ -60,7 +74,7 @@ command /minigame [<text>] [<text>] [<text>] [<text>]:
 			
 			if arg 1 is "create":
 				if {mg.arena.name::%arg 2%} is set:
-					message "{@tag}<red>Il nome dell'arena Ã¨ giÃ  utilizzato!"
+					message "{@tag}<red>{@langNameUsed}"
 					stop
 				set {mg.arena.name::%arg 2%} to arg 2
 				message "{@tag}<green>Minigame %arg 2% created succesfully! Creating default flags..."
@@ -164,19 +178,10 @@ on right click with stick:
 	set {_items} to ""
 	loop {mg.arena.name::*}:
 		{mg.arena.flag.%loop-index%::enabled} is "TRUE"
-		set {_items} to "s;%{_i}%;i;wool;n;&3Play %loop-index%;l;&2Click to join %loop-index%.;c;pe %player% /join %loop-index%;%{_items}%"
+		set {_items} to "s;%{_i}%;i;wool;n;&3Play %loop-index%;l;&2&lClick to join %loop-index%.;c;pe %player% /join %loop-index%;%{_items}%"
 		add 1 to {_1}
 	#We add 1 to the number for the exit slot
 	add 1 to {_i}
-	if {_i} is less than 10:
-		set {_rows} to 1
-	else:
-		if {_i} is between 10 and 18:
-			set {_rows} to 2
-		else:
-			if {_i} is between 19 and 27:
-				set {_rows} to 3
-			else:
-				set {_rows} to 4
+	set {_rows} to ceil({_i}/9) #round the rows needed to be displayed on the GUI
 	set {_items} to "s;%%{_rows}%*9%;i;red wool;n;&4&lEXIT;%{_items}%"
 	show "%{_items}%" with {_rows} rows named "&3Minigames" to player
