@@ -1,107 +1,182 @@
 # MinigameSk
 # Started By portapipe
 # Made by community: (your name will be here when you'll add your commits)
-# bcroca | Otakunight 
+# bcroca | Otakunight
 
-# Variables
-options:
-#Game Parameters:
-	winpoints: 2				#How many kills lead to a win
-	maxplayers: 20				#Maximal numbers of players in one Minigame 
-	minplayers: 3				#Minimal number of players in one Minigame
-	votestart: 1				#Number of players that have to vote for start
+# Variables:
+# - mg.arena.name::arenaName
+### The current variable is made for the current game
+# - mg.current.arenaName::players
+### Flags are the settings of each arena, all under 1 simple list of a variable
+# - mg.arena.flag.arenaName::minPlayers|maxPlayers|score|scoreType|team(true-false)|type(addon!)|lobby|spawn(team or single)|quit|timer|lateJoin|enabled|lives|pvp(true or false)|
 
-	#Team only options
-	friendlyfire: false			#If teammates can hurt each other (Negative potions effects will still be applied)
-	teams: 2				    #Number of maximum Teams
-	autoteams: 2				#Teams that will automatically used by the Autobalance system
-	autoplayers: 2				#DONT SET THIS TO 1 OR 0!!! Number of players that can be in a different team before autobalance tries to distribute players evenly
-	ingamebalance: false		#If the automatic balancing should occur if players leave an running game
-	scramble: true				#Automatically scramble all players
-	superiorscramble:999		#How superior a team has to be vs another to cause a scramble
-	loosepoints: false			#If player loses points when leaving
-	
-#Damage types:
-	respawn: 0					Delay in seconds before spawning again (in competive gamemodes)
-	saferespawn: 10				#Minimal Distance from other players when respawning (if possible)
-	realdeath: true				#If you really get killed or just get ported to lobby to wait for respawn (should be off for factions[you would lose power otherwise])
-	hurting: true				#If you can get damaged by anything(except players)
-	naturaldeath: true			#If you can get killed by natural causes (if false you will survive everything with a half hearth)
-	physicskill: false			#If falling/lava/fire kills you instantly 
-	firekill: false				#If burning Kills instantly
-	lavakill: true				#If Lava Kills instantly
-	drowning: false				#If consuming air (going underwater) instantly kills
-	
-#Administrating Stuff
-	prefix: <magic>aaa<green>Ultimate Minigame<reset><magic>aaa<reset> 	#The prefix shown before every message
-	prefixarg2: <magic>aaa<green>%argument 2%<reset><magic>aaa<reset> 	#The prefix shown before every message
-	admin.permission: Minigame.admin							#The everything permission now with 20% more everything
-	build.permission : Minigame.build							#Allows people to build Minigame
-	mod.permission: Minigame.mod								#Allows people to forcestart end or whatever but not to build
-	use.permission: Minigame.use								#Allows people to use the Minigame
-	command.signs: {@use.permission}							#Allows people to create automatic paintball command signs (you might want to make this an vip feature)
+# other possible flags: blockPlace,blockBreak,gamemode,lobby,checkpoint,reset,startTime(waiting type),reward
 
-
-
-# ################################################################################## #
-# ##########################Common Messages in English:############################# #
-# ################################################################################## #
-	NotPlayable: %argument 1% can't be played on this server.		#Argument 1 will be the type of the Minigame
-	NotExisting: %argument 2% can't be found.						#Argument 2 will be the name of the Minigame
-	NotFinished: This Minigame is missing some stuff.
-	AlreadyIngame:	Leave your current game before joining a new one
-	Full: This Minigame is already full.
-	NotFull: This Minigame needs more players to start
-	Joining: You succesfully entered the %argument 1% Minigame %argument 2%
-	Leaving: You left the %argument 1% Minigame %argument 2%
-	Vote: You succesfully voted for starting the Minigame
-	Cannotvote: You can't vote now...
-	Didvote: You already voted
-	Novotes: Not enough players voted to start the Minigame
-	Starting: Starting %{Minigame.%player%.game}% game in %{Minigame.%player%.lobby}%
-	Winning: %{Minigame.%{_player}%.team}%& Team%{Minigame.%{_player}%.team}% has won the game in the %argument 1% Minigame %argument 2%
-# ################################################################################## #
-# ################################################################################## #
-# ################################################################################## #
-
-
-### Flags are the settings of each Minigame, all under 1 simple list of a variable
-# - Minigame.Minigamegametype.MinigameName::minPlayers|maxPlayers|team(number)|lobby|spawn(team or single)|and so on...
+# I don't know about: defaultWinner,blockDrop,itemPickup,itemDrop,restoreBlocks,unlimitedAmmo,
 
 # Spectator? With "Plus" we can hide spectator from players and give them fly, nodrop, nohit, notarget...
 
+options:
+	tag : <blue>[<yellow>Minigame<blue>] <reset>
+	separator: "<blue>####################<reset>"
+	version : "V.01"
+
+command /minigame [<text>] [<text>] [<text>] [<text>]:
+	usage: <green>mg join/quit/list arena <reset>- <red>staff: mg create/delete/flag arena flagType flagValue
+	aliases: mg,mgm
+	permission: mg.active
+	trigger:
+
+		if arg 1 is not set:
+			message "{@separator}"
+			message "{@tag}Minigame Plugin {@version}, made by the community"
+			message "<orange>list: <yellow>List of available minigames"
+			message "<orange>join <purple><minigame>: <yellow>Join to a specific minigame"
+			
+		if arg 1 is "list":
+			message "{@separator}"
+			message "{@tag}List of available minigames:"
+			message "<yellow>%{mg.arena.name::*}%"
+			
+		if arg 1 is "join":
+			message "{@separator}"
+			message "{@tag}This will be the join command, joining minigame %arg 2%"
+		
+		if arg 1 is "quit":
+			message "{@separator}"
+			message "{@tag}This will be the quit command"
+			if arg 2 is set:
+				message "The player %arg 2% will quit from his current minigame"
 
 
 
-command /Minigame <text> [<text>] [<text>]:
-	aliases: mg, mgm
-	description: join a Minigame
-	usage: /Minigame %Minigametype% %Minigamename%
-	permission:	Minigame.use
+
+#-------STAFF COMMANDS---------
+		
+		if arg 1 is "create","delete" or "flag":
+			arg 2 is set
+			message "{@separator}"
+			message "{@tag}STAFF Commands"
+			
+			if arg 1 is "create":
+				if {mg.arena.name::%arg 2%} is set:
+					message "{@tag}<red>Il nome dell'arena Ã¨ giÃ  utilizzato!"
+					stop
+				set {mg.arena.name::%arg 2%} to arg 2
+				message "{@tag}<green>Minigame %arg 2% created succesfully! Creating default flags..."
+				# Default flags for the new minigame (using string because it's a text argument)
+				set {mg.arena.flag.%arg 2%::enabled} to "FALSE"
+				set {mg.arena.flag.%arg 2%::minPlayers} to "2"
+				set {mg.arena.flag.%arg 2%::score} to "2"
+				# We'll parse the numbers above when we'll use it!
+		
+			if arg 1 is "delete":
+				if {mg.arena.name::%arg 2%} is not set:
+					message "{@tag}<red>L'arena selezionata non esiste!"
+					stop
+				delete {mg.arena.name::%arg 2%}
+				delete {mg.arena.flag.%arg 2%::*}
+				#Dovremmo teleportare eventuali player nell'arena selezionata
+
+
+
+
+#ALIASES FOR DEDICATED OR MG BASED SERVER
+command /join <text>:
+	trigger:
+		make player execute console command "mg join %arg 1%"
+		
+command /quit <player>:
+	aliases: esc,exit,leave
+	trigger:
+		if arg 1 is not set:
+			make player execute console command "mg quit"
+		else:
+			execute console command "mg quit %arg 1%"
+#END ALIASES
+
+
+
+#SCOREBOARD
+command /sb <text> <text> [<offline player>] [<integer>]:
+	usage: sb <add/remove/set/create/delete> <scoreboard> [player] [points]
+	permission: mg.scoreboard
 	trigger:
 		
-		if arg 1 is set:
+		if arg 1 is "create" or "delete":
+			message "{@tag}Create or delete a scoreboard"
 			
-			## JOIN Minigame
-			if arg 1 is "join":
-				if arg 2 is set:
-					
-					## IF minigame exists
-					if {minigame.arena.%arg 2%::name} is set:
-					
-						## IF minigame is started
-						if {minigame.arena.%arg 2%::started} is true:
-							
-							##IF minigame is full
-							if {minigame.arena.%arg 2%::numplayers} is {minigame.arena.%arg 2%::maxplayer}:
-								message "{@prefixarg2} {@Full}"
-								stop
-							
-						set {minigame.player.%player%::arena} to arg 2
-						add 1 to {minigame.arena.%arg 2%::numplayers}
-					
-						message "{@prefixarg2} {@Joining}"							
-						
-					else:
-						message "{@prefix} {@NotExisting}"
-						stop
+			
+		if arg 1 is "add","remove" or "set":
+			message "{@tag}%arg 1% points to player %arg 3% to scoreboard %arg 2%"
+#END SCOREBOARD
+
+
+
+#SUDO command
+command /playerexecute <player> <text>:
+	aliases: pe, sudo
+	executable by: console
+	trigger:
+		execute argument 1 command "%argument 2%"
+
+
+
+#----------- EVENTS ----------
+#
+on right click on sign:
+	line 1 of block is "&4[Minigame]"
+	if line 2 of block is "&5[Join]":
+		add player to {mg.current.%line 3 of block%::players}
+		add 1 to {mg.current.%line 3 of block%::totPlayers}
+	
+		#Write number of current player to the sign
+		#Check if maxPlayers flag is set, else there's no limit to the number of players
+		set {_maxPlayers} to ""
+		if {mg.arena.flag.%line 3 of block%::maxPlayers} is set:
+			set {_maxPlayers} to "/%{mg.arena.flag.%line 3 of block%::maxPlayers}%"
+	
+		set line 4 of the block to "Players: %{mg.current.%line 3 of block%::totPlayers}%%{_maxPlayers}%"
+	
+		teleport player to {mg.arena.flag.%line 3 of block%::lobby}
+		message "{@tag}You have been teleported to the lobby of: %line 3 of block%."
+		stop
+
+on sign change:
+	line 1 of block is "&4[Minigame]"
+	if player don't have permission "mg.staff":
+		message "{@tag}&4You don't have the required permission to create minigames sign!"
+		stop
+	if line 2 of block is "&5[Join]":
+		if line 3 of block is "":
+			cancel event
+			message "{@tag}&4You have to insert an existing minigame arena name in the third line!"
+			stop
+			
+		set {mg.current.%line 3 of block%::totPlayers} to 0
+		set line 4 of the block to "Players: %{total.players}%"
+
+
+
+#MENU SYSTEM
+on right click with stick:
+	set {_i} to 1
+	set {_items} to ""
+	loop {mg.arena.name::*}:
+		{mg.arena.flag.%loop-index%::enabled} is "TRUE"
+		set {_items} to "s;%{_i}%;i;wool;n;&3Play %loop-index%;l;&2Click to join %loop-index%.;c;pe %player% /join %loop-index%;%{_items}%"
+		add 1 to {_1}
+	#We add 1 to the number for the exit slot
+	add 1 to {_i}
+	if {_i} is less than 10:
+		set {_rows} to 1
+	else:
+		if {_i} is between 10 and 18:
+			set {_rows} to 2
+		else:
+			if {_i} is between 19 and 27:
+				set {_rows} to 3
+			else:
+				set {_rows} to 4
+	set {_items} to "s;%%{_rows}%*9%;i;red wool;n;&4&lEXIT;%{_items}%"
+	show "%{_items}%" with {_rows} rows named "&3Minigames" to player
