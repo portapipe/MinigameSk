@@ -1,3 +1,68 @@
+#Main Idea
 mga = minigame arena
 mgu = minigame user
 mgo = minigame options
+
+
+#Main Vars
+mga.%arenaName%::vars
+mgu.%player%::vars
+mgo.%arenaName%::vars
+
+
+I know, 2 vars array for the same arena… I think is will be more easy to manage and read, plus the options are all apart from the main arena default settings like the arena name and other non-options vars.
+
+
+#Arena Vars
+
+mga.%arenaName%::
+
+name
+
+
+#User Vars
+
+mgu.%player%::
+
+points
+arena
+spectator (true or false, need to think about spectator mode)
+
+It should be cool to have an option to activate some "points" vars for dedicated mg's server
+
+
+#Options Vars (a lot and need to think of what we really need)
+
+mgo.%arenaName%::
+
+minPlayers
+maxPlayers
+maxScore
+spawn
+team (true or false)
+t1spawn (team 1 spawn)
+t2spawn (team 2 spawn)
+t3spawn (team 3 spawn)
+t4spawn (team 4 spawn)
+quit (quit position)
+lobby (lobby position)
+scoreType (this one should not be necessary because every external game type has his own score type method like tdm has kills, ctf has the captured flags…)
+
+
+need to think about this possibility:
+blockPlace
+blockBrake
+gamemode
+checkpoint
+reset
+startTime
+reward
+
+and this one are far from now but should be considerate:
+defaultWinner
+blockDrop
+itemPickup
+itemDrop
+restoreBlocks
+unlimitedAmmo
+
