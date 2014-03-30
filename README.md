@@ -21,4 +21,9 @@ What to do
 * Reset the game (variables and scoreboard)
 * Tell me what to add to this list...
 
+Additional Possible Features:
+* Minecraft Achievement
+* "minigame points" as reward
+
+
 I think that we can make a full scoreboard command set that make everything, so it's simpler to edit in the future and more compact!
