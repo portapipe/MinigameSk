@@ -1,24 +1,23 @@
 #Main Idea
-mga = minigame arena
+mgl = minigame list
 mgu = minigame user
 mgo = minigame options
-
+mgc = minigame current
 
 #Main Vars
-mga.%arenaName%::vars
+mgl::%arenasName%
 mgu.%player%::vars
 mgo.%arenaName%::vars
-
+mgc.%arenaName%::vars
 
 I know, 2 vars array for the same arena… I think is will be more easy to manage and read, plus the options are all apart from the main arena default settings like the arena name and other non-options vars.
 
 
-#Arena Vars
+#Arena List Var
 
-mga.%arenaName%::
+mgl::%nameOfTheArena% #Useful for name check on creation and loops for GUI
 
-name
-
+setting {mvl::arenatest} to "Public Arena Name" #to have a readable name 
 
 #User Vars
 
@@ -38,6 +37,7 @@ mgo.%arenaName%::
 minPlayers
 maxPlayers
 maxScore
+lateJoin (true or false) #permit to join on a started game
 spawn
 team (true or false)
 t1spawn (team 1 spawn)
@@ -49,7 +49,7 @@ lobby (lobby position)
 scoreType ([?] this one should not be necessary because every external game type has his own score type method like tdm has kills, ctf has the captured flags…)
 gameType (we'll took this from external files, one for game type)
 
-need to think about this possibility:
+#need to think about this possibility:
 blockPlace
 blockBrake
 gamemode
@@ -58,7 +58,7 @@ reset
 startTime
 reward
 
-and this one are far from now but should be considerate:
+#and this one are far from now but should be considerate:
 defaultWinner
 blockDrop
 itemPickup
@@ -66,3 +66,15 @@ itemDrop
 restoreBlocks
 unlimitedAmmo
 
+#Current Vars (that can be deleted at the end of the arena and clean all in once)
+
+mgc.%arenaName%::
+
+players #the actual number of players into that arena
+points #the actual points of the game
+started #useful to close the join if there's no lateJoin
+ended #useful to deny damage and delay the quit of the arena and say some messages
+
+
+#depending of what we'll add…
+regenerationRunning #if we'll make a regeneration of the arena

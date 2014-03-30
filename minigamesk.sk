@@ -4,17 +4,23 @@
 # bcroca | Otakunight
 
 # Variables:
-# - mg.arena.name::arenaName
-### The current variable is made for the current game
-# - mg.current.arenaName::players
-### Flags are the settings of each arena, all under 1 simple list of a variable
-# - mg.arena.flag.arenaName::minPlayers|maxPlayers|score|scoreType|team(true-false)|type(addon!)|lobby|spawn(team or single)|quit|timer|lateJoin|enabled|lives|pvp(true or false)|
+https://github.com/portapipe/MinigameSk/blob/master/guidelines/variables%20list
+
+
+
+
+# # More Info
 
 # other possible flags: blockPlace,blockBreak,gamemode,lobby,checkpoint,reset,startTime(waiting type),reward
 
 # I don't know about: defaultWinner,blockDrop,itemPickup,itemDrop,restoreBlocks,unlimitedAmmo,
 
 # Spectator? With "Plus" we can hide spectator from players and give them fly, nodrop, nohit, notarget...
+
+# # End More Info
+
+
+
 
 options:
 	tag : <blue>[<yellow>Minigame<blue>] <reset>
@@ -29,6 +35,7 @@ options:
 	langPoint			:	Points
 	langJoin			:	Join
 	langNameUsed		:	An Arena with this name already exists!
+	langAvailableMgs	:	"List of available minigames:"
 
 
 command /minigame [<text>] [<text>] [<text>] [<text>]:
@@ -49,8 +56,13 @@ command /minigame [<text>] [<text>] [<text>] [<text>]:
 			
 		if arg 1 is "list":
 			message "{@separator}"
-			message "{@tag}List of available minigames:"
-			message "<yellow>%{mg.arena.name::*}%"
+			message "{@tag}{@langAvailableMgs}"
+			set {_listMgs} to ""
+			loop {mgl::*}:
+				{mgo.%loop-index%::enabled} is true
+				set {_listMgs} to "%{_listMgs}% <yellow>%{mgl::*}% "
+			message "%{_listMgs}%"
+			
 			
 		if arg 1 is "join":
 			message "{@separator}"
@@ -73,24 +85,27 @@ command /minigame [<text>] [<text>] [<text>] [<text>]:
 			message "{@tag}STAFF Commands"
 			
 			if arg 1 is "create":
-				if {mg.arena.name::%arg 2%} is set:
+				if {mgl::%arg 2%} is set:
 					message "{@tag}<red>{@langNameUsed}"
 					stop
-				set {mg.arena.name::%arg 2%} to arg 2
+				set {mgl::%arg 2%} to arg 2
 				message "{@tag}<green>Minigame %arg 2% created succesfully! Creating default flags..."
 				# Default flags for the new minigame (using string because it's a text argument)
-				set {mg.arena.flag.%arg 2%::enabled} to "FALSE"
-				set {mg.arena.flag.%arg 2%::minPlayers} to "2"
-				set {mg.arena.flag.%arg 2%::score} to "2"
+				set {mgo.%arg 2%::enabled} to "FALSE"
+				set {mgo.%arg 2%::minPlayers} to "2"
+				set {mgo.%arg 2%::score} to "2"
 				# We'll parse the numbers above when we'll use it!
 		
 			if arg 1 is "delete":
-				if {mg.arena.name::%arg 2%} is not set:
-					message "{@tag}<red>L'arena selezionata non esiste!"
+				if {mgl::%arg 2%} is not set:
+					message "{@tag}<red>The selected arena doesn't exists!"
 					stop
-				delete {mg.arena.name::%arg 2%}
-				delete {mg.arena.flag.%arg 2%::*}
-				#Dovremmo teleportare eventuali player nell'arena selezionata
+				delete {mgl::%arg 2%}
+				delete {mgo.%arg 2%::*}
+				delete {mgc.%arg 2%::*}
+				delete {mgo.%arg 2%::*}
+				
+				#We should teleport the users inside the arena outside the deleted arena
 
 
 
@@ -118,7 +133,7 @@ command /sb <text> <text> [<offline player>] [<integer>]:
 	trigger:
 		
 		if arg 1 is "create" or "delete":
-			message "{@tag}Create or delete a scoreboard"
+			message "{@tag}Create or delete a scoreboard with Sk+"
 			
 			
 		if arg 1 is "add","remove" or "set":
@@ -152,7 +167,7 @@ on right click on sign:
 	
 		set line 4 of the block to "Players: %{mg.current.%line 3 of block%::totPlayers}%%{_maxPlayers}%"
 	
-		teleport player to {mg.arena.flag.%line 3 of block%::lobby}
+		teleport player to {mgo.%line 3 of block%::lobby}
 		message "{@tag}You have been teleported to the lobby of: %line 3 of block%."
 		stop
 
@@ -166,9 +181,13 @@ on sign change:
 			cancel event
 			message "{@tag}&4You have to insert an existing minigame arena name in the third line!"
 			stop
+		if {mgl::%line3 of block%} is not set:
+			set line 1 of block to "<red><strong>Fix This!"
+			set line 3 of block to "<red><strong>Name Error!"
+			stop
 			
-		set {mg.current.%line 3 of block%::totPlayers} to 0
-		set line 4 of the block to "Players: %{total.players}%"
+		set {mgc.%line 3 of block%::totPlayers} to 0
+		set line 4 of the block to "Players: 0/%{mgo.%line 3 of block%::maxPlayers}%"
 
 
 
@@ -177,7 +196,7 @@ on right click with stick:
 	set {_i} to 1
 	set {_items} to ""
 	loop {mg.arena.name::*}:
-		{mg.arena.flag.%loop-index%::enabled} is "TRUE"
+		{mgo.%loop-index%::enabled} is true
 		set {_items} to "s;%{_i}%;i;wool;n;&3Play %loop-index%;l;&2&lClick to join %loop-index%.;c;pe %player% /join %loop-index%;%{_items}%"
 		add 1 to {_1}
 	#We add 1 to the number for the exit slot
