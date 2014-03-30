@@ -46,8 +46,8 @@ t3spawn (team 3 spawn)
 t4spawn (team 4 spawn)
 quit (quit position)
 lobby (lobby position)
-scoreType (this one should not be necessary because every external game type has his own score type method like tdm has kills, ctf has the captured flags…)
-
+scoreType ([?] this one should not be necessary because every external game type has his own score type method like tdm has kills, ctf has the captured flags…)
+gameType (we'll took this from external files, one for game type)
 
 need to think about this possibility:
 blockPlace
