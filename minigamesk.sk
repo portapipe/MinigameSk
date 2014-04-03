@@ -67,12 +67,17 @@ command /minigame [<text>] [<text>] [<text>] [<text>]:
 			
 			
 		if arg 1 is "list":
+			
+			if player don't have permission "mg.mod" or "mg.admin":
+				make player execute command "mg menu"
+				stop
+					
 			message "{@separator}"
 			message "{@tag}{@langAvailableMgs}:"
 			set {_listMgs} to ""
 			loop {mgl::*}:
 				{mgo.%loop-index%::enabled} is true
-				set {_listMgs} to "%{_listMgs}% <yellow>%loop-value% "
+				set {_listMgs} to "%{_listMgs}% <yellow>%loop-value% <orange><italic>(%loop-index%) <yellow>|"
 			message "%{_listMgs}%"
 			
 			
