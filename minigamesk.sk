@@ -1,10 +1,10 @@
 # MinigameSk
 # Started By portapipe
 # Made by community: (your name will be here when you'll add your commits)
-# bcroca | Otakunight
+# bcroca | Reptar_
 
 # Variables:
-https://github.com/portapipe/MinigameSk/blob/master/guidelines/variables%20list
+# https://github.com/portapipe/MinigameSk/blob/master/guidelines/variables%20list
 
 
 
@@ -30,18 +30,24 @@ options:
 
 
 
-#--- LANGUAGE
+#--- LANGUAGE ---------------------------------------------------
+
 	langPlayer 			:	Player
 	langPoint			:	Points
 	langJoin			:	Join
+	langPlay			:	Play
+	langClickJoin		:	Click to join
 	langNameUsed		:	An Arena with this name already exists!
-	langAvailableMgs	:	"List of available minigames:"
+	langAvailableMgs	:	List of available minigames
+
+#--- END LANGUAGE ---------------------------------------------------
+
 
 
 command /minigame [<text>] [<text>] [<text>] [<text>]:
 	usage: <green>mg join/quit/list arena <reset>- <red>staff: mg create/delete/flag arena flagType flagValue
 	aliases: mg,mgm
-	permission: mg.active
+	permission: mg.user
 	trigger:
 
 
@@ -51,16 +57,22 @@ command /minigame [<text>] [<text>] [<text>] [<text>]:
 		if arg 1 is not set:
 			message "{@separator}"
 			message "{@tag}Minigame Plugin {@version}, made by the community"
-			message "<orange>list: <yellow>List of available minigames"
-			message "<orange>join <purple><minigame>: <yellow>Join to a specific minigame"
+			wait 1 second
+			if player don't have permission "mg.mod" or "mg.admin":
+				make player execute command "mg menu"
+				stop
+				
+				
+			
+			
 			
 		if arg 1 is "list":
 			message "{@separator}"
-			message "{@tag}{@langAvailableMgs}"
+			message "{@tag}{@langAvailableMgs}:"
 			set {_listMgs} to ""
 			loop {mgl::*}:
 				{mgo.%loop-index%::enabled} is true
-				set {_listMgs} to "%{_listMgs}% <yellow>%{mgl::*}% "
+				set {_listMgs} to "%{_listMgs}% <yellow>%loop-value% "
 			message "%{_listMgs}%"
 			
 			
@@ -74,7 +86,20 @@ command /minigame [<text>] [<text>] [<text>] [<text>]:
 			if arg 2 is set:
 				message "The player %arg 2% will quit from his current minigame"
 
-
+		
+		if arg 1 is "menu":
+			set {_i} to 1
+			set {_items} to ""
+			loop {mgl::*}:
+				{mgo.%loop-index%::enabled} is true
+				set {_items} to "s;%{_i}%;i;wool;n;&3{@langPlay} %loop-value%;l;&2&l{@langClickJoin} %loop-value%.;c;pe %player% /mg join %loop-index%;%{_items}%"
+				add 1 to {_1}
+			#We add 1 to the number for the exit slot
+			add 1 to {_i}
+			set {_rows} to ceil({_i}/9) #round the rows needed to be displayed on the GUI
+			set {_items} to "s;%%{_rows}%*9%;i;red wool;n;&4&l[X];%{_items}%"
+			show "%{_items}%" with {_rows} rows named "&3Minigames" to player
+		
 
 
 #-------STAFF COMMANDS---------
@@ -89,8 +114,10 @@ command /minigame [<text>] [<text>] [<text>] [<text>]:
 					message "{@tag}<red>{@langNameUsed}"
 					stop
 				set {mgl::%arg 2%} to arg 2
-				message "{@tag}<green>Minigame %arg 2% created succesfully! Creating default flags..."
-				# Default flags for the new minigame (using string because it's a text argument)
+				message "{@tag}<green>Minigame %arg 2% created succesfully! Creating default options..."
+				
+				
+				# Default options for the new minigame (using string because it's a text argument)
 				set {mgo.%arg 2%::enabled} to "FALSE"
 				set {mgo.%arg 2%::minPlayers} to "2"
 				set {mgo.%arg 2%::score} to "2"
@@ -107,6 +134,27 @@ command /minigame [<text>] [<text>] [<text>] [<text>]:
 				
 				#We should teleport the users inside the arena outside the deleted arena
 
+
+
+
+#---EDITING OPTION --------
+
+command /mgo <text> [<text>] [<text>]:
+	permission: mg.admin
+	usage: /mgo <arenaName> <option> <newValue>
+	description: It has to be used for change option for a single arena
+	trigger:
+		
+		#It should never be empty so...
+		if arg 1 is not set:
+			message "<red>Args?!?"
+			stop
+		
+		if arg 2 is "menu":
+			message "Show the GUI menu for the arena passed as Arg 1"
+			stop
+		
+		
 
 
 
@@ -156,8 +204,8 @@ command /playerexecute <player> <text>:
 on right click on sign:
 	line 1 of block is "&4[Minigame]"
 	if line 2 of block is "&5[Join]":
-		add player to {mg.current.%line 3 of block%::players}
-		add 1 to {mg.current.%line 3 of block%::totPlayers}
+		add player to {mgc.%line 3 of block%::players}
+		add 1 to {mgc.%line 3 of block%::totPlayers}
 	
 		#Write number of current player to the sign
 		#Check if maxPlayers flag is set, else there's no limit to the number of players
@@ -193,14 +241,4 @@ on sign change:
 
 #MENU SYSTEM
 on right click with stick:
-	set {_i} to 1
-	set {_items} to ""
-	loop {mg.arena.name::*}:
-		{mgo.%loop-index%::enabled} is true
-		set {_items} to "s;%{_i}%;i;wool;n;&3Play %loop-index%;l;&2&lClick to join %loop-index%.;c;pe %player% /join %loop-index%;%{_items}%"
-		add 1 to {_1}
-	#We add 1 to the number for the exit slot
-	add 1 to {_i}
-	set {_rows} to ceil({_i}/9) #round the rows needed to be displayed on the GUI
-	set {_items} to "s;%%{_rows}%*9%;i;red wool;n;&4&lEXIT;%{_items}%"
-	show "%{_items}%" with {_rows} rows named "&3Minigames" to player
+	make player execute command "mg menu"
