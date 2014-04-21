@@ -1,7 +1,7 @@
-MinigameSk
+MinigameSk API
 ==========
 
-Minigames Core
+Minigames Core API
 
 We Need YOU and your experience here!
 Help us adding your own code to make this project the MUST of minigames plugin!
