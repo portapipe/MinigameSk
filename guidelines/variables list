@@ -1,16 +1,27 @@
 #Main Idea
+mgg = minigame global
 mgl = minigame list
 mgu = minigame user
 mgo = minigame options
 mgc = minigame current
 
 #Main Vars
+mgg::vars
 mgl::%arenasName%
 mgu.%player%::vars
 mgo.%arenaName%::vars
 mgc.%arenaName%::vars
 
 I know, 2 vars array for the same arena… I think is will be more easy to manage and read, plus the options are all apart from the main arena default settings like the arena name and other non-options vars.
+
+
+
+#Global Vars
+
+mgg::
+
+lobby #a main global lobby. You can set the single arena lobby too
+quit  #a main global quit position. You can set the single quit too
 
 
 #Arena List Var
