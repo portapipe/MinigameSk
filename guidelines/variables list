@@ -3,12 +3,15 @@ mgl = minigame list
 mgu = minigame user
 mgo = minigame options
 mgc = minigame current
+mgg = minigame general
+
 
 #Main Vars
 mgl::%arenasName%
 mgu.%player%::vars
 mgo.%arenaName%::vars
 mgc.%arenaName%::vars
+mgg::vars
 
 I know, 2 vars array for the same arena… I think is will be more easy to manage and read, plus the options are all apart from the main arena default settings like the arena name and other non-options vars.
 
@@ -78,3 +81,11 @@ ended #useful to deny damage and delay the quit of the arena and say some messag
 
 #depending of what we'll add…
 regenerationRunning #if we'll make a regeneration of the arena
+
+
+#Global Vars (for a global lobby and exit point plus other things)
+
+mgg::
+
+lobby #for one global lobby. You can set a single lobby either but if you don't you have the global one
+quit  #global quit position for every minigame, you can set single quit either
